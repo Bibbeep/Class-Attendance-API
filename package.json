@@ -1,0 +1,32 @@
+{
+  "name": "class-attendance-api",
+  "version": "0.0.1",
+  "description": "An API for checking, tracking, and submitting class/course presence for students.",
+  "main": "app.js",
+  "scripts": {
+    "start:dev": "nodemon ./app.js",
+    "build:patch": "npm version patch",
+    "build:minor": "npm version minor",
+    "build:major": "npm version major"
+  },
+  "keywords": [
+    "api",
+    "student",
+    "school",
+    "attendance",
+    "presence"
+  ],
+  "author": "Bibbeep",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/morgan": "^1.9.9",
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.9",
+    "prisma": "^6.1.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0"
+  }
+}
