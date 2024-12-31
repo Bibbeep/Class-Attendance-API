@@ -52,23 +52,23 @@ Class Attendance API is a project built to manage students attendance for on-sit
 
 | Method | URL | Functionality | Authentication |
 | --- | --- | --- | --- |
-| POST | /api/v1/auth/register | Registers a new user account | FALSE |
-| POST | /api/v1/auth/resend-otp | Resends OTP to user email's for registration | FALSE |
-| POST | /api/v1/auth/verify | Verifies a user account registration with OTP | FALSE |
-| POST | /api/v1/auth/login | Logs in a user | FALSE |
-| GET | /api/v1/auth/logout | Logs out a user | TRUE |
-| POST | /api/v1/auth/forgot-password | Sends an email with a url to reset password | FALSE |
-| POST | /api/v1/auth/reset-password | Resets a password of a user | TRUE |
-| GET | /api/v1/classes | Retrieves all classes | FALSE |
-| GET | /api/v1/classes/:id | Retrieves a class details | FALSE |
-| GET | /api/v1/my-classes | Retrieves all enrolled classes | TRUE |
-| GET | /api/v1/my-classes/:id | Retrieves a enrolled class details | TRUE |
-| POST | /api/v1/my-classes | Enroll to a class | TRUE |
-| DELETE | /api/v1/my-classes/:id | Un-enroll to a class | TRUE |
-| GET | /api/v1/classes/:id/attendances | Retrieves attendance history to for a class | TRUE |
-| GET | /api/v1/classes/:id/attendances/:id | Retrieves an attendance details to for a class | TRUE |
-| POST | /api/v1/classes/:id/attendances | Submits an attendance/sick leave to a class | TRUE |
-| GET | /api/v1/notifications | Retrieves all notifications | TRUE |
+| `POST` | `/api/register` | Registers a new user account | FALSE |
+| `POST` | `/api/verify` | Verifies a user account registration with OTP | FALSE |
+| `POST` | `/api/resend-otp` | Resends OTP to user email's for registration | FALSE |
+| `POST` | `/api/login` | Logs in a user | FALSE |
+| `GET` | `/api/logout` | Logs out a user | TRUE |
+| `POST` | `/api/forgot-password` | Sends an email with a url to reset password | FALSE |
+| `POST` | `/api/reset-password` | Resets a password of a user | TRUE |
+| `GET` | `/api/classes` | Retrieves all classes | FALSE |
+| `GET` | `/api/classes/:class_id` | Retrieves a class details | FALSE |
+| `GET` | `/api/my-classes` | Retrieves all enrolled classes | TRUE |
+| `GET` | `/api/my-classes/:my_class_id` | Retrieves a enrolled class details | TRUE |
+| `POST` | `/api/my-classes` | Enroll to a class | TRUE |
+| `DELETE` | `/api/my-classes/:my_class_id` | Un-enroll to a class | TRUE |
+| `GET` | `/api/classes/:class_id/attendances` | Retrieves attendance history to for a class | TRUE |
+| `GET` | `/api/classes/:class_id/attendances/:attendance_id` | Retrieves an attendance details to for a class | TRUE |
+| `POST` | `/api/classes/:class_id/attendances` | Submits an attendance/sick leave to a class | TRUE |
+| `GET` | `/api/notifications` | Retrieves all notifications | TRUE |
 
 ---
 
@@ -84,6 +84,7 @@ For all endpoints, the server failure's responses would be the as such:
     {
         "status": "error",
         "code": 500,
+        "data": null,
         "message": "Internal server error"
     }
     ```
@@ -97,12 +98,230 @@ For all endpoints, the server failure's responses would be the as such:
     {
         "status": "error",
         "code": 500,
+        "data": null,
         "message": "Unable to communicate with database"
     }
     ```
 
 ---
 
-### POST /register
+### `POST /api/register`
 
-... to be written later
+- **Description**: Registers a new user account
+- **Parameters**: 
+    - Data params:
+        ```
+        {
+            "email": <string, required>,
+            "password": <string, required>,
+            "first_name": <string, required>,
+            "last_name": <string, optional>,
+            "birth_date": <date_iso8601, required>
+        }
+        ```
+
+        Example:
+        ```json
+        {
+            "email": "johndoe@mail.com",
+            "password": "password123",
+            "first_name": "John",
+            "last_name": "Doe",
+            "birth_date": "2000-05-25"
+        }
+        ```
+    - Path Params: None
+    - Query Params: None
+- **Headers**:
+    - Content-Type: application/json
+- **Success Response**:
+    - Code: 201
+    - Body:
+        ```
+        {
+            "status": "success",
+            "code": 201,
+            "data": {
+                "id": <integer>,
+                "email": <string>,
+                "first_name": <string>,
+                "last_name": <string>
+            },
+            "message": "Successfully registered a new account. OTP code has been sent to your email address"
+        }
+        ```
+
+        Example:
+        ```json
+        {
+            "status": "success",
+            "code": 201,
+            "data": {
+                "id": 1,
+                "email": "johndoe@mail.com",
+                "first_name": "John",
+                "last_name": "Doe"
+            },
+            "message": "Successfully registered a new account. OTP code has been sent to your email address"
+        }
+        ```
+- **Fail Response (Bad Request)**:
+    - Code: 400
+    - Body:
+        ```
+        {
+            "status": "fail",
+            "code": 400,
+            "data": null,
+            "message": <string>
+        }
+        ```
+- **Fail Response (Resource Conflict)**:
+    - Code: 409
+    - Body:
+        ```
+        {
+            "status": "fail",
+            "code": 409,
+            "data": null,
+            "message": <string>
+        }
+        ```
+
+---
+
+### `POST /api/verify`
+
+- **Description**: Verifies a user account registration with OTP
+- **Parameters**: 
+    - Data params:
+        ```
+        {
+            "email": <string, required>,
+            "otp": <string, required>
+        }
+        ```
+
+        Example:
+        ```json
+        {
+            "email": "johndoe@mail.com",
+            "otp": "123456"
+        }
+        ```
+    - Path Params: None
+    - Query Params: None
+- **Headers**:
+    - Content-Type: application/json
+- **Success Response**:
+    - Code: 200
+    - Body:
+        ```
+        {
+            "status": "success",
+            "code": 200,
+            "data": {
+                "id": <integer>,
+                "email": <string>,
+                "first_name": <string>,
+                "last_name": <string>
+            },
+            "message": "Successfully verified a new account"
+        }
+        ```
+
+        Example:
+        ```json
+        {
+            "status": "success",
+            "code": 200,
+            "data": {
+                "id": 1,
+                "email": "johndoe@mail.com",
+                "first_name": "John",
+                "last_name": "Doe"
+            },
+            "message": "Successfully verified a new account"
+        }
+        ```
+- **Fail Response (Bad Request)**:
+    - Code: 400
+    - Body:
+        ```
+        {
+            "status": "fail",
+            "code": 400,
+            "data": null,
+            "message": <string>
+        }
+        ```
+- **Fail Response (Resource Conflict)**:
+    - Code: 409
+    - Body:
+        ```json
+        {
+            "status": "fail",
+            "code": 409,
+            "data": null,
+            "message": "User is already verified"
+        }
+        ```
+
+---
+
+### `POST /api/resend-otp`
+
+- **Description**: Resends OTP to user email's for registration
+- **Parameters**: 
+    - Data params:
+        ```
+        {
+            "email": <string, required>
+        }
+        ```
+
+        Example:
+        ```json
+        {
+            "email": "johndoe@mail.com",
+        }
+        ```
+    - Path Params: None
+    - Query Params: None
+- **Headers**:
+    - Content-Type: application/json
+- **Success Response**:
+    - Code: 200
+    - Body:
+        ```json
+        {
+            "status": "success",
+            "code": 200,
+            "data": null,
+            "message": "Successfully resend OTP code to the email address"
+        }
+        ```
+- **Fail Response (Bad Request)**:
+    - Code: 400
+    - Body:
+        ```
+        {
+            "status": "fail",
+            "code": 400,
+            "data": null,
+            "message": <string>
+        }
+        ```
+- **Fail Response (Resource Conflict)**:
+    - Code: 409
+    - Body:
+        ```json
+        {
+            "status": "fail",
+            "code": 409,
+            "data": null,
+            "message": "User is already verified"
+        }
+        ```
+
+---
