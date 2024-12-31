@@ -56,7 +56,7 @@ Class Attendance API is a project built to manage students attendance for on-sit
 | `POST` | `/api/verify` | Verifies a user account registration with OTP | FALSE |
 | `POST` | `/api/resend-otp` | Resends OTP to user email's for registration | FALSE |
 | `POST` | `/api/login` | Logs in a user | FALSE |
-| `GET` | `/api/logout` | Logs out a user | TRUE |
+| `POST` | `/api/logout` | Logs out a user | TRUE |
 | `POST` | `/api/forgot-password` | Sends an email with a url to reset password | FALSE |
 | `POST` | `/api/reset-password` | Resets a password of a user | TRUE |
 | `GET` | `/api/classes` | Retrieves all classes | FALSE |
@@ -179,12 +179,12 @@ For all endpoints, the server failure's responses would be the as such:
 - **Fail Response (Resource Conflict)**:
     - Code: 409
     - Body:
-        ```
+        ```json
         {
             "status": "fail",
             "code": 409,
             "data": null,
-            "message": <string>
+            "message": "Email is already registered"
         }
         ```
 
@@ -321,6 +321,220 @@ For all endpoints, the server failure's responses would be the as such:
             "code": 409,
             "data": null,
             "message": "User is already verified"
+        }
+        ```
+
+---
+
+### `POST /api/login`
+
+- **Description**: Logs in a user
+- **Parameters**: 
+    - Data params:
+        ```
+        {
+            "email": <string, required>,
+            "password": <string, required>
+        }
+        ```
+
+        Example:
+        ```json
+        {
+            "email": "johndoe@mail.com",
+            "password": "password123"
+        }
+        ```
+    - Path Params: None
+    - Query Params: None
+- **Headers**:
+    - Content-Type: application/json
+- **Success Response**:
+    - Code: 200
+    - Body:
+        ```
+        {
+            "status": "success",
+            "code": 200,
+            "data": {
+                "user": {
+                    "id": <integer>,
+                    "email": <string>,
+                    "first_name": <string>,
+                    "last_name": <string>
+                },
+                "access_token": <string>
+            },
+            "message": "Successfully logged in"
+        }
+        ```
+
+        Example:
+        ```json
+        {
+            "status": "success",
+            "code": 200,
+            "data": {
+                "user": {
+                    "id": 1,
+                    "email": "johndoe@mail.com",
+                    "first_name": "John",
+                    "last_name": "Doe"
+                },
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            },
+            "message": "Successfully logged in"
+        }
+        ```
+- **Fail Response (Bad Request)**:
+    - Code: 400
+    - Body:
+        ```
+        {
+            "status": "fail",
+            "code": 400,
+            "data": null,
+            "message": <string>
+        }
+        ```
+- **Fail Response (Wrong Credential)**:
+    - Code: 401
+    - Body:
+        ```json
+        {
+            "status": "fail",
+            "code": 401,
+            "data": null,
+            "message": "Wrong email or password"
+        }
+        ```
+
+---
+
+### `POST /api/logout`
+
+- **Description**: Logs out a user
+- **Parameters**: 
+    - Data params: None
+    - Path Params: None
+    - Query Params: None
+- **Headers**:
+    - Content-Type: application/json
+    - Authorization: Bearer <jwt_token> (required)
+- **Success Response**:
+    - Code: 200
+    - Body:
+        ```json
+        {
+            "status": "success",
+            "code": 200,
+            "data": null,
+            "message": "Successfully logged out"
+        }
+        ```
+- **Fail Response (Unauthorized)**:
+    - Code: 401
+    - Body:
+        ```json
+        {
+            "status": "fail",
+            "code": 401,
+            "data": null,
+            "message": "Invalid or expired token"
+        }
+        ```
+
+---
+
+### `POST /api/forgot-password`
+
+- **Description**: Sends an email with a url to reset password
+- **Parameters**: 
+    - Data params:
+        ```
+        {
+            "email": <string, required>
+        }
+        ```
+
+        Example:
+        ```json
+        {
+            "email": "johndoe@mail.com"
+        }
+        ```
+    - Path Params: None
+    - Query Params: None
+- **Headers**:
+    - Content-Type: application/json
+- **Success Response**:
+    - Code: 200
+    - Body:
+        ```json
+        {
+            "status": "success",
+            "code": 200,
+            "data": null,
+            "message": "Link to reset the password has been sent to the email"
+        }
+        ```
+- **Fail Response (Bad Request)**:
+    - Code: 400
+    - Body:
+        ```
+        {
+            "status": "fail",
+            "code": 400,
+            "data": null,
+            "message": <string>
+        }
+        ```
+
+---
+
+### `POST /api/reset-password`
+
+- **Description**: Resets a password of a user
+- **Parameters**: 
+    - Data params:
+        ```
+        {
+            "password_reset_token": <string, required>,
+            "new_password": <string, required>
+        }
+        ```
+
+        Example:
+        ```json
+        {
+            "password_reset_token": "8887b54fd0ba1b56af8e480023ae98900da525b5b69b4e13f2a14e608b27823c",
+            "new_password": "newpassword123"
+        }
+        ```
+    - Path Params: None
+    - Query Params: None
+- **Headers**:
+    - Content-Type: application/json
+- **Success Response**:
+    - Code: 200
+    - Body:
+        ```json
+        {
+            "status": "success",
+            "code": 200,
+            "data": null,
+            "message": "Successfully reset the password"
+        }
+        ```
+- **Fail Response (Bad Request)**:
+    - Code: 400
+    - Body:
+        ```
+        {
+            "status": "fail",
+            "code": 400,
+            "data": null,
+            "message": <string>
         }
         ```
 
