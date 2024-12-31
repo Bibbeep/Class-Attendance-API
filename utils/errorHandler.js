@@ -5,13 +5,13 @@ module.exports = (err, req, res, next) => {
         return res.status(err.code).json({
             status: 'fail',
             code: err.code,
-            message: err.message
+            message: err.message,
         });
     }
 
     return res.status(500).json({
         status: 'error',
         code: 500,
-        message: 'Internal server error'
+        message: 'Internal server error',
     });
 };

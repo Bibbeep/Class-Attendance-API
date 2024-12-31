@@ -9,9 +9,7 @@ class Auth {
      * @param {string} data.birthDate - The birth date of the user being created
      * @returns {Promise<object>} The data of the user being created
      */
-    static async create() {
-        
-    }
+    static async create() {}
 }
 
 module.exports = Auth;
