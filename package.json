@@ -11,7 +11,8 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "db:push": "prisma db push",
-    "db:reset": "prisma db push --force-reset"
+    "db:reset": "prisma db push --force-reset",
+    "db:seed": "prisma db seed"
   },
   "keywords": [
     "api",
@@ -20,6 +21,9 @@
     "attendance",
     "presence"
   ],
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "author": "Bibbeep",
   "license": "ISC",
   "devDependencies": {
