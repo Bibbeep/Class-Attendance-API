@@ -51,7 +51,8 @@ module.exports = (err, req, res, next) => {
             ],
         });
     } else {
-        console.log(err);
+        // eslint-disable-next-line capitalized-comments
+        // console.log(err);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
