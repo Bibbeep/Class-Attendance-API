@@ -61,7 +61,7 @@ module.exports = {
                 throw error;
             }
 
-            const data = AuthModel.verifyOTP(value);
+            const data = await AuthModel.verifyOTP(value);
 
             return res.status(200).json({
                 status: 'success',

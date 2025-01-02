@@ -57,7 +57,8 @@ class Auth {
         const otp = speakeasy.totp({
             secret: otpSecret.base32,
             encoding: 'base32',
-            step: 300,
+            step: 30,
+            window: 10,
         });
 
         return {
@@ -73,13 +74,79 @@ class Auth {
 
     /**
      * @todo Implement OTP verification function
-     * @param {Object} data - user's email and otp code
+     * @param {Object} data - user's email and one-time passcode
      * @param {string} data.email - user's email
-     * @param {string} data.otp - OTP code to be verified
-     * @returns {Promise<{ user: { id: number, email: string, first } }>}
+     * @param {string} data.otp - One-time passcode to be verified
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string } }>} The data of the user being verified
      */
     static async verifyOTP(data) {
-        //
+        const { email, otp } = data;
+
+        const user = await prisma.user.findUnique({
+            where: {
+                email,
+            },
+        });
+
+        if (!user) {
+            throw new HttpRequestError(400, 'Request body validation error', [
+                {
+                    message: 'email is not registered',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+            ]);
+        } else if (user && user.isVerified) {
+            throw new HttpRequestError(409, 'Resource conflict', [
+                {
+                    message: 'email is already verified',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+            ]);
+        }
+
+        const isVerified = speakeasy.totp.verify({
+            secret: user.otpSecret,
+            encoding: 'base32',
+            token: otp,
+            step: 30,
+            window: 10,
+        });
+
+        if (!isVerified) {
+            throw new HttpRequestError(400, 'Request body validation error', [
+                {
+                    message: 'Invalid or expired otp',
+                    context: {
+                        key: 'otp',
+                        value: otp,
+                    },
+                },
+            ]);
+        }
+
+        await prisma.user.update({
+            where: {
+                email,
+            },
+            data: {
+                isVerified: true,
+            },
+        });
+
+        return {
+            user: {
+                id: user.id,
+                email: user.email,
+                first_name: user.firstName,
+                last_name: user.lastName,
+            },
+        };
     }
 }
 
