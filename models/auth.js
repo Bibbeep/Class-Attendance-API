@@ -13,7 +13,7 @@ class Auth {
      * @param {string} data.first_name - The full name of the user being created
      * @param {string=} data.last_name - The full name of the user being created
      * @param {string} data.birth_date - The birth date of the user being created
-     * @returns {Promise<object>} The data of the user being created
+     * @returns {Promise<{ user: { id: number, email: string, firstName: string, lastName: string | null }, otp: string }>} The data of the user being created
      */
     static async register(data) {
         const { email, password, first_name, last_name, birth_date } = data;
@@ -61,7 +61,12 @@ class Auth {
         });
 
         return {
-            user,
+            user: {
+                id: user.id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+            },
             otp,
         };
     }
