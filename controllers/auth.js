@@ -1,5 +1,5 @@
 const AuthModel = require('../models/auth');
-const { validateRegister } = require('../utils/validator');
+const { validateRegister, validateVerifyOTP } = require('../utils/validator');
 const sendMail = require('../utils/mailer');
 
 module.exports = {
@@ -47,6 +47,29 @@ module.exports = {
                 },
                 message:
                     'Successfully registered a new account. OTP code has been sent to your email address',
+                errors: null,
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
+    verify: async (req, res, next) => {
+        try {
+            const { error, value } = validateVerifyOTP(req.body);
+
+            if (error) {
+                throw error;
+            }
+
+            const data = AuthModel.verifyOTP(value);
+
+            return res.status(200).json({
+                status: 'success',
+                statusCode: 200,
+                data: {
+                    ...data.user,
+                },
+                message: 'Successfully verified a new account',
                 errors: null,
             });
         } catch (err) {

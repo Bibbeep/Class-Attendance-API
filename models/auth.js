@@ -13,7 +13,7 @@ class Auth {
      * @param {string} data.first_name - The full name of the user being created
      * @param {string=} data.last_name - The full name of the user being created
      * @param {string} data.birth_date - The birth date of the user being created
-     * @returns {Promise<{ user: { id: number, email: string, firstName: string, lastName: string | null }, otp: string }>} The data of the user being created
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null }, otp: string }>} The data of the user being created
      */
     static async register(data) {
         const { email, password, first_name, last_name, birth_date } = data;
@@ -64,11 +64,22 @@ class Auth {
             user: {
                 id: user.id,
                 email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
+                first_name: user.firstName,
+                last_name: user.lastName,
             },
             otp,
         };
+    }
+
+    /**
+     * @todo Implement OTP verification function
+     * @param {Object} data - user's email and otp code
+     * @param {string} data.email - user's email
+     * @param {string} data.otp - OTP code to be verified
+     * @returns {Promise<{ user: { id: number, email: string, first } }>}
+     */
+    static async verifyOTP(data) {
+        //
     }
 }
 

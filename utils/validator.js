@@ -17,6 +17,12 @@ const registerSchema = Joi.object({
         .required(),
 });
 
+const verifyOTPSchema = Joi.object({
+    email: Joi.string().email().required(),
+    otp: Joi.string().length(6).pattern(/^\d+$/).required(),
+});
+
 module.exports = {
     validateRegister: validator(registerSchema),
+    validateVerifyOTP: validator(verifyOTPSchema),
 };

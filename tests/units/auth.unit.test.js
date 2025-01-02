@@ -56,22 +56,22 @@ describe('Authentication Unit Tests', () => {
             expect(returnData).toHaveProperty('user');
             expect(returnData.user).toHaveProperty('id');
             expect(returnData.user).toHaveProperty('email');
-            expect(returnData.user).toHaveProperty('firstName');
-            expect(returnData.user).toHaveProperty('lastName');
+            expect(returnData.user).toHaveProperty('first_name');
+            expect(returnData.user).toHaveProperty('last_name');
 
             expect(typeof returnData.user.id).toBe('number');
             expect(typeof returnData.user.email).toBe('string');
-            expect(typeof returnData.user.firstName).toBe('string');
+            expect(typeof returnData.user.first_name).toBe('string');
 
-            if (returnData.user.lastName) {
-                expect(typeof returnData.user.lastName).toBe('string');
+            if (returnData.user.last_name) {
+                expect(typeof returnData.user.last_name).toBe('string');
             }
 
             expect(returnData.user).toMatchObject({
                 id: 2,
                 email: data.email,
-                firstName: data.first_name,
-                lastName: data.last_name,
+                first_name: data.first_name,
+                last_name: data.last_name,
             });
         });
 
