@@ -1,6 +1,6 @@
 {
   "name": "class-attendance-api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An API for checking, tracking, and submitting class/course presence for students.",
   "main": "app.js",
   "scripts": {
