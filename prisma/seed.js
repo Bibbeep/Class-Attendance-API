@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/require-jsdoc */
 const users = require('./seeds/users.json');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
