@@ -29,7 +29,13 @@
     "seed": "node prisma/seed.js"
   },
   "jest": {
-    "collectCoverage": true
+    "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/coverage/",
+      "/utils/error.js",
+      "/utils/errorHandler.js"
+    ]
   },
   "author": "Bibbeep",
   "license": "ISC",

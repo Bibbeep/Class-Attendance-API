@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
+/* istanbul ignore next */
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 } else if (process.env.NODE_ENV === 'production') {
