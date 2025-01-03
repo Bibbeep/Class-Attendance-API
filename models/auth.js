@@ -6,14 +6,15 @@ const prisma = new PrismaClient();
 
 class Auth {
     /**
-     * @todo Implement register function
-     * @param {Object} data - User registration data
+     * Method that takes user data, insert them to the database, and generate one-time passcode
+     * @param {object} data - User registration data
      * @param {string} data.email - The email of the user being created
      * @param {string} data.password - The password of the user being created
      * @param {string} data.first_name - The full name of the user being created
      * @param {string=} data.last_name - The full name of the user being created
      * @param {string} data.birth_date - The birth date of the user being created
      * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null }, otp: string }>} The data of the user being created
+     * @throws {HttpRequestError} Will throw an error with 409 statusCode if the user's email is already registered or 500 statusCode if fail to communicate with the database
      */
     static async register(data) {
         const { email, password, first_name, last_name, birth_date } = data;
@@ -73,11 +74,12 @@ class Auth {
     }
 
     /**
-     * @todo Implement OTP verification function
-     * @param {Object} data - user's email and one-time passcode
+     * Method that verify one-time passcode against existing user's data in the database
+     * @param {object} data - user's email and one-time passcode
      * @param {string} data.email - user's email
      * @param {string} data.otp - One-time passcode to be verified
      * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string } }>} The data of the user being verified
+     * @throws {HttpRequestError} Will throw an error with 400 statusCode if email is not registered or invalid/expired OTP, or 409 statusCode if email is already verified
      */
     static async verifyOTP(data) {
         const { email, otp } = data;
@@ -146,6 +148,62 @@ class Auth {
                 first_name: user.firstName,
                 last_name: user.lastName,
             },
+        };
+    }
+
+    /**
+     * Method that regenerate a user's one-time passcode
+     * @param {data} data - user's data
+     * @param {string} data.email - user's email
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string }, otp: string }>} Returns object with one-time passcode
+     * @throws {HttpRequestError} Will throw an error with 400 statusCode if email is not registered or 409 statusCode if email is already verified
+     */
+    static async regenerateOTP(data) {
+        const { email } = data;
+
+        const user = await prisma.user.findUnique({
+            where: {
+                email,
+            },
+        });
+
+        if (!user) {
+            throw new HttpRequestError(400, 'Request body validation error', [
+                {
+                    message: 'email is not registered',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+            ]);
+        } else if (user.isVerified) {
+            throw new HttpRequestError(409, 'Request body validation error', [
+                {
+                    message: 'email is already verified',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+            ]);
+        }
+
+        const otp = speakeasy.totp({
+            secret: user.otpSecret,
+            encoding: 'base32',
+            step: 30,
+            window: 10,
+        });
+
+        return {
+            user: {
+                id: user.id,
+                email: user.email,
+                first_name: user.firstName,
+                last_name: user.lastName,
+            },
+            otp,
         };
     }
 }

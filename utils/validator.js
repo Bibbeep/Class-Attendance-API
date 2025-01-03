@@ -22,7 +22,12 @@ const verifyOTPSchema = Joi.object({
     otp: Joi.string().length(6).pattern(/^\d+$/).required(),
 });
 
+const resendOTPSchema = Joi.object({
+    email: Joi.string().email().required(),
+});
+
 module.exports = {
     validateRegister: validator(registerSchema),
     validateVerifyOTP: validator(verifyOTPSchema),
+    validateResendOTP: validator(resendOTPSchema),
 };
