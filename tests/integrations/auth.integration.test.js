@@ -16,19 +16,33 @@ const resetDatabase = async () => {
 };
 
 const seedDatabase = async () => {
-    const userData = {
-        email: 'test1@mail.com',
-        password: await bcrypt.hash('testpassword', 10),
-        firstName: 'Jenny',
-        birthDate: new Date('1990-12-31'),
-        otpSecret: speakeasy.generateSecret({ length: 20 }).base32,
-        createdAt: new Date(Date.now()),
-        updatedAt: new Date(Date.now()),
-        isVerified: true,
-        role: 'STUDENT',
-    };
+    const data = [
+        {
+            email: 'test1@mail.com',
+            password: await bcrypt.hash('testpassword', 10),
+            firstName: 'Jenny',
+            birthDate: new Date('1990-12-31'),
+            otpSecret: speakeasy.generateSecret({ length: 20 }).base32,
+            createdAt: new Date(Date.now()),
+            updatedAt: new Date(Date.now()),
+            isVerified: true,
+            role: 'STUDENT',
+        },
+        {
+            email: 'test2@mail.com',
+            password: await bcrypt.hash('testpassword', 10),
+            firstName: 'Jane',
+            lastName: 'Day',
+            birthDate: new Date('1995-06-15'),
+            otpSecret: speakeasy.generateSecret({ length: 20 }).base32,
+            createdAt: new Date(Date.now()),
+            updatedAt: new Date(Date.now()),
+            isVerified: false,
+            role: 'STUDENT',
+        },
+    ];
 
-    await prisma.user.create({ data: userData });
+    await prisma.user.createMany({ data });
 };
 
 describe('Authentication Integration Tests', () => {
@@ -48,7 +62,7 @@ describe('Authentication Integration Tests', () => {
     describe('POST /api/register Tests', () => {
         it('should successfully registered a user account and return 201', async () => {
             const data = {
-                email: 'test2@mail.com',
+                email: 'test3@mail.com',
                 password: 'testpassword',
                 first_name: 'John',
                 last_name: 'Doe',
@@ -65,7 +79,7 @@ describe('Authentication Integration Tests', () => {
                 statusCode: 201,
                 data: {
                     user: {
-                        id: 2,
+                        id: 3,
                         email: data.email,
                         first_name: data.first_name,
                         last_name: data.last_name,
@@ -169,7 +183,7 @@ describe('Authentication Integration Tests', () => {
     describe('POST /api/verify Tests', () => {
         it('should successfully verified a new user account and return 200', async () => {
             const registerData = {
-                email: 'test2@mail.com',
+                email: 'test3@mail.com',
                 password: 'testpassword',
                 first_name: 'John',
                 last_name: 'Doe',
@@ -205,7 +219,7 @@ describe('Authentication Integration Tests', () => {
                 status: 'success',
                 statusCode: 200,
                 data: {
-                    id: 2,
+                    id: 3,
                     email: registerData.email,
                     first_name: registerData.first_name,
                     last_name: registerData.last_name,
@@ -250,7 +264,7 @@ describe('Authentication Integration Tests', () => {
 
         it('should fail to verify a new user account and return 400 if invalid or expired otp', async () => {
             const registerData = {
-                email: 'test2@mail.com',
+                email: 'test3@mail.com',
                 password: 'testpassword',
                 first_name: 'John',
                 last_name: 'Doe',
@@ -332,6 +346,96 @@ describe('Authentication Integration Tests', () => {
                 statusCode: 409,
                 data: null,
                 message: 'Resource conflict',
+                errors: [
+                    {
+                        message: 'email is already verified',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+    });
+
+    describe('POST /api/resend-otp Tests', () => {
+        it('should successfully resend otp and return 200', async () => {
+            const data = { email: 'test2@mail.com' };
+            const response = await request(server)
+                .post('/api/resend-otp')
+                .send(data);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                statusCode: 200,
+                data: null,
+                message: 'Successfully resend OTP code to your email address',
+                errors: null,
+            });
+        });
+
+        it('should fail to resend otp and return 400 if invalid request body', async () => {
+            const data = { email: 123 };
+            const response = await request(server)
+                .post('/api/resend-otp')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: '"email" must be a string',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to resend otp and return 400 if email is not registered', async () => {
+            const data = { email: 'unregistered@mail.com' };
+            const response = await request(server)
+                .post('/api/resend-otp')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: 'email is not registered',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to resend otp and return 409 if email is already verified', async () => {
+            const data = { email: 'test1@mail.com' };
+            const response = await request(server)
+                .post('/api/resend-otp')
+                .send(data);
+
+            expect(response.status).toBe(409);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 409,
+                data: null,
+                message: 'Request body validation error',
                 errors: [
                     {
                         message: 'email is already verified',

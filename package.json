@@ -16,7 +16,8 @@
     "db:reset": "prisma db push --force-reset",
     "db:seed": "prisma db seed",
     "test:unit:auth": "NODE_ENV=test jest ./tests/units/auth.unit.test.js --detectOpenHandles --coverage",
-    "test:integration:auth": "NODE_ENV=test jest ./tests/integrations/auth.integration.test.js --detectOpenHandles --coverage"
+    "test:integration:auth": "NODE_ENV=test jest ./tests/integrations/auth.integration.test.js --detectOpenHandles --coverage",
+    "test:all": "NODE_ENV=test jest --detectOpenHandles --coverage"
   },
   "keywords": [
     "api",
