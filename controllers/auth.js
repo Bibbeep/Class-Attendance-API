@@ -43,7 +43,7 @@ module.exports = {
                 status: 'success',
                 statusCode: 201,
                 data: {
-                    ...data.user,
+                    user: { ...data.user },
                 },
                 message:
                     'Successfully registered a new account. OTP code has been sent to your email address',

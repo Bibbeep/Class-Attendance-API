@@ -23,6 +23,8 @@ app.use(express.json());
 app.use(router);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
 });
+
+module.exports = { server };
