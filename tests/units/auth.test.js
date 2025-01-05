@@ -1,5 +1,10 @@
 /* eslint-disable no-undef */
-const { register, verifyOTP, regenerateOTP } = require('../../models/auth');
+const {
+    register,
+    verifyOTP,
+    regenerateOTP,
+    login,
+} = require('../../models/auth');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
@@ -293,6 +298,94 @@ describe('Authentication Unit Tests', () => {
                         context: {
                             key: 'email',
                             value: data.email,
+                        },
+                    },
+                ]),
+            );
+        });
+    });
+
+    describe('Login Model Tests', () => {
+        it('should user data and access token', async () => {
+            const data = {
+                email: 'test1@mail.com',
+                password: 'testpassword',
+            };
+
+            const returnData = await login(data);
+
+            expect(returnData).toHaveProperty('user');
+            expect(returnData.user).toHaveProperty('id');
+            expect(returnData.user).toHaveProperty('email');
+            expect(returnData.user).toHaveProperty('first_name');
+            expect(returnData.user).toHaveProperty('last_name');
+
+            expect(typeof returnData.user.id).toBe('number');
+            expect(typeof returnData.user.email).toBe('string');
+            expect(typeof returnData.user.first_name).toBe('string');
+
+            if (returnData.user.last_name) {
+                expect(typeof returnData.user.last_name).toBe('string');
+            }
+
+            expect(returnData.user).toMatchObject({
+                id: 1,
+                email: data.email,
+                first_name: 'Jenny',
+                last_name: null,
+            });
+
+            expect(returnData).toHaveProperty('accessToken');
+            expect(typeof returnData.accessToken).toBe('string');
+            expect(isNaN(returnData.accessToken)).toBe(true);
+        });
+
+        it('should throw an error if email is unregistered', async () => {
+            const data = {
+                email: 'unregistered@mail.com',
+                password: 'testpassword',
+            };
+
+            await expect(login(data)).rejects.toThrow(
+                new HttpRequestError(401, 'Unauthorized', [
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'password',
+                            value: '*'.repeat(data.password.length),
+                        },
+                    },
+                ]),
+            );
+        });
+
+        it('should throw an error if incorrect password', async () => {
+            const data = {
+                email: 'test1@mail.com',
+                password: 'incorrectpassword',
+            };
+
+            await expect(login(data)).rejects.toThrow(
+                new HttpRequestError(401, 'Unauthorized', [
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'password',
+                            value: '*'.repeat(data.password.length),
                         },
                     },
                 ]),
