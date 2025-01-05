@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const HttpRequestError = require('../utils/error');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
+const jwt = require('jsonwebtoken');
 const prisma = new PrismaClient();
 
 class Auth {
@@ -204,6 +205,82 @@ class Auth {
                 last_name: user.lastName,
             },
             otp,
+        };
+    }
+
+    /**
+     * Method that authenticate user with email and password
+     * @param {object} data - Containing user's email and password
+     * @param {string} data.email - User's email
+     * @param {string} data.password - User's password
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null }, accessToken: string }>} The data of the user being verified and JWT access token
+     * @throws {HttpRequestError} Will throw an error with 400 statusCode if email is not registered or invalid/expired OTP, or 409 statusCode if email is already verified
+     */
+    static async login(data) {
+        const { email, password } = data;
+
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (!user) {
+            throw new HttpRequestError(401, 'Unauthorized', [
+                {
+                    message: 'Wrong email or password',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+                {
+                    message: 'Wrong email or password',
+                    context: {
+                        key: 'password',
+                        value: '*'.repeat(password.length),
+                    },
+                },
+            ]);
+        }
+
+        const isPasswordTrue = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordTrue) {
+            throw new HttpRequestError(401, 'Unauthorized', [
+                {
+                    message: 'Wrong email or password',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+                {
+                    message: 'Wrong email or password',
+                    context: {
+                        key: 'password',
+                        value: '*'.repeat(password.length),
+                    },
+                },
+            ]);
+        }
+
+        const payload = {
+            id: user.id,
+            first_name: user.firstName,
+            last_name: user.lastName || null,
+        };
+
+        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '1d',
+        });
+
+        return {
+            user: {
+                id: user.id,
+                email: user.email,
+                first_name: user.firstName,
+                last_name: user.lastName || null,
+            },
+            accessToken,
         };
     }
 }

@@ -3,6 +3,7 @@ const {
     validateRegister,
     validateVerifyOTP,
     validateResendOTP,
+    validateLogin,
 } = require('../utils/validator');
 const sendMail = require('../utils/mailer');
 
@@ -121,6 +122,27 @@ module.exports = {
                 statusCode: 200,
                 data: null,
                 message: 'Successfully resend OTP code to your email address',
+                errors: null,
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
+    login: async (req, res, next) => {
+        try {
+            const { error, value } = validateLogin(req.body);
+
+            if (error) {
+                throw error;
+            }
+
+            const data = await AuthModel.login(value);
+
+            return res.status(200).json({
+                status: 'success',
+                statusCode: 200,
+                data,
+                message: 'Successfully logged in',
                 errors: null,
             });
         } catch (err) {

@@ -26,8 +26,14 @@ const resendOTPSchema = Joi.object({
     email: Joi.string().email().required(),
 });
 
+const loginSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).max(30).required(),
+});
+
 module.exports = {
     validateRegister: validator(registerSchema),
     validateVerifyOTP: validator(verifyOTPSchema),
     validateResendOTP: validator(resendOTPSchema),
+    validateLogin: validator(loginSchema),
 };
