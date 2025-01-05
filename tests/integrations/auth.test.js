@@ -448,4 +448,137 @@ describe('Authentication Integration Tests', () => {
             });
         });
     });
+
+    describe('POST /api/login Tests', () => {
+        it('should successfully logged in a user and return 200', async () => {
+            const data = {
+                email: 'test1@mail.com',
+                password: 'testpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/login')
+                .send(data);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                statusCode: 200,
+                data: {
+                    user: {
+                        id: 1,
+                        email: data.email,
+                        first_name: 'Jenny',
+                        last_name: null,
+                    },
+                    accessToken: response.body.data.accessToken,
+                },
+                message: 'Successfully logged in',
+                errors: null,
+            });
+        });
+
+        it('should fail to logged in a user and return 400 if invalid request body', async () => {
+            const data = {
+                password: 123,
+            };
+
+            const response = await request(server)
+                .post('/api/login')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: '"email" is required',
+                        context: {
+                            key: 'email',
+                        },
+                    },
+                    {
+                        message: '"password" must be a string',
+                        context: {
+                            key: 'password',
+                            value: data.password,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to logged in a user and return 401 if email is not registered', async () => {
+            const data = {
+                email: 'unregistered@mail.com',
+                password: 'testpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/login')
+                .send(data);
+
+            expect(response.status).toBe(401);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 401,
+                data: null,
+                message: 'Unauthorized',
+                errors: [
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'password',
+                            value: '*'.repeat(data.password.length),
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to logged in a user and return 401 if incorrect password', async () => {
+            const data = {
+                email: 'test1@mail.com',
+                password: 'incorrectpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/login')
+                .send(data);
+
+            expect(response.status).toBe(401);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 401,
+                data: null,
+                message: 'Unauthorized',
+                errors: [
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'password',
+                            value: '*'.repeat(data.password.length),
+                        },
+                    },
+                ],
+            });
+        });
+    });
 });
