@@ -31,9 +31,14 @@ const loginSchema = Joi.object({
     password: Joi.string().min(8).max(30).required(),
 });
 
+const forgotPasswordSchema = Joi.object({
+    email: Joi.string().email().required(),
+});
+
 module.exports = {
     validateRegister: validator(registerSchema),
     validateVerifyOTP: validator(verifyOTPSchema),
     validateResendOTP: validator(resendOTPSchema),
     validateLogin: validator(loginSchema),
+    validateForgotPassword: validator(forgotPasswordSchema),
 };

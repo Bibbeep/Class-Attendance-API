@@ -3,6 +3,7 @@ const HttpRequestError = require('../utils/error');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
 const jwt = require('jsonwebtoken');
+const { randomBytes, createHash } = require('crypto');
 const prisma = new PrismaClient();
 
 class Auth {
@@ -214,7 +215,7 @@ class Auth {
      * @param {string} data.email - User's email
      * @param {string} data.password - User's password
      * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null }, accessToken: string }>} The data of the user being verified and JWT access token
-     * @throws {HttpRequestError} Will throw an error with 400 statusCode if email is not registered or invalid/expired OTP, or 409 statusCode if email is already verified
+     * @throws {HttpRequestError} Will throw an error with 401 statusCode if email is not registered or incorrect password
      */
     static async login(data) {
         const { email, password } = data;
@@ -281,6 +282,53 @@ class Auth {
                 last_name: user.lastName || null,
             },
             accessToken,
+        };
+    }
+
+    /**
+     * Method that generate password reset token for a user
+     * @param {object} data - Containing user's email
+     * @param {string} data.email - User's email
+     * @returns {Promise<{ user: { email: string }, passwordResetToken: string }>} The data of the user and password reset token
+     * @throws {HttpRequestError} Will throw an error with 400 statusCode if email is not registered
+     */
+    static async createPasswordResetToken(data) {
+        const { email } = data;
+
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (!user) {
+            throw new HttpRequestError(400, 'Request body validation error', [
+                {
+                    message: 'Email is not registered',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+            ]);
+        }
+
+        const token = randomBytes(32).toString('hex');
+        const hashedToken = createHash('sha256').update(token).digest('hex');
+
+        await prisma.user.update({
+            where: { email },
+            data: {
+                passwordResetToken: hashedToken,
+                passwordResetTokenExpirationTime: new Date(
+                    Date.now() + 5 * 60 * 1000,
+                ),
+            },
+        });
+
+        return {
+            user: {
+                email: user.email,
+            },
+            passwordResetToken: token,
         };
     }
 }
