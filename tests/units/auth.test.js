@@ -4,6 +4,7 @@ const {
     verifyOTP,
     regenerateOTP,
     login,
+    createPasswordResetToken,
 } = require('../../models/auth');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
@@ -60,7 +61,7 @@ describe('Authentication Unit Tests', () => {
         await resetDatabase();
     });
 
-    describe('Register Model Tests', () => {
+    describe('register Tests', () => {
         it('should return user data and otp', async () => {
             const data = {
                 email: 'test3@mail.com',
@@ -121,7 +122,7 @@ describe('Authentication Unit Tests', () => {
         });
     });
 
-    describe('Verify OTP Model Tests', () => {
+    describe('verifyOTP Tests', () => {
         it('should return user data and verifies the new user', async () => {
             const registerData = {
                 email: 'test3@mail.com',
@@ -238,7 +239,7 @@ describe('Authentication Unit Tests', () => {
         });
     });
 
-    describe('Regenerate OTP Model Tests', () => {
+    describe('regenerateOTP Tests', () => {
         it('should return user data and otp', async () => {
             const data = { email: 'test2@mail.com' };
             const returnData = await regenerateOTP(data);
@@ -305,8 +306,8 @@ describe('Authentication Unit Tests', () => {
         });
     });
 
-    describe('Login Model Tests', () => {
-        it('should user data and access token', async () => {
+    describe('login Tests', () => {
+        it('should return user data and access token', async () => {
             const data = {
                 email: 'test1@mail.com',
                 password: 'testpassword',
@@ -386,6 +387,40 @@ describe('Authentication Unit Tests', () => {
                         context: {
                             key: 'password',
                             value: '*'.repeat(data.password.length),
+                        },
+                    },
+                ]),
+            );
+        });
+    });
+
+    describe('createPasswordResetToken Tests', () => {
+        it('should return user data and password reset token', async () => {
+            const data = { email: 'test1@mail.com' };
+
+            const returnData = await createPasswordResetToken(data);
+
+            expect(returnData).toHaveProperty('user');
+            expect(returnData.user).toHaveProperty('email');
+            expect(typeof returnData.user.email).toBe('string');
+
+            expect(returnData.user.email).toBe(data.email);
+
+            expect(returnData).toHaveProperty('passwordResetToken');
+            expect(typeof returnData.passwordResetToken).toBe('string');
+            expect(isNaN(returnData.passwordResetToken)).toBe(true);
+        });
+
+        it('should throw an error if email is not registered', async () => {
+            const data = { email: 'unregistered@mail.com' };
+
+            await expect(createPasswordResetToken(data)).rejects.toThrow(
+                new HttpRequestError(400, 'Request body validation error', [
+                    {
+                        message: 'Email is not registered',
+                        context: {
+                            key: 'email',
+                            value: data.email,
                         },
                     },
                 ]),
