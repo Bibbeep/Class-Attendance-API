@@ -581,4 +581,77 @@ describe('Authentication Integration Tests', () => {
             });
         });
     });
+
+    describe('POST /api/forgot-password Tests', () => {
+        it('should successfully request password reset link and return 200', async () => {
+            const data = { email: 'test1@mail.com' };
+
+            const response = await request(server)
+                .post('/api/forgot-password')
+                .send(data);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                statusCode: 200,
+                data: {
+                    user: {
+                        email: data.email,
+                    },
+                },
+                message: 'Successfully sent password reset link to your email',
+                errors: null,
+            });
+        });
+
+        it('should fail to request password reset link and return 400 if invalid request body', async () => {
+            const data = { email: 123 };
+
+            const response = await request(server)
+                .post('/api/forgot-password')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: '"email" must be a string',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to request password reset link and return 400 if unregistered email', async () => {
+            const data = { email: 'unregistered@mail.com' };
+
+            const response = await request(server)
+                .post('/api/forgot-password')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: 'Email is not registered',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+    });
 });
