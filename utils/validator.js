@@ -40,6 +40,12 @@ const resetPasswordSchema = Joi.object({
     newPassword: Joi.string().min(8).max(30).required(),
 });
 
+const bearerJwtSchema = Joi.object({
+    authorization: Joi.string()
+        .pattern(/^Bearer\s/)
+        .required(),
+}).unknown(true);
+
 module.exports = {
     validateRegister: validator(registerSchema),
     validateVerifyOTP: validator(verifyOTPSchema),
@@ -47,4 +53,5 @@ module.exports = {
     validateLogin: validator(loginSchema),
     validateForgotPassword: validator(forgotPasswordSchema),
     validateResetPassword: validator(resetPasswordSchema),
+    validateAuthorizationHeader: validator(bearerJwtSchema),
 };

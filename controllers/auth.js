@@ -8,6 +8,7 @@ const {
     validateResetPassword,
 } = require('../utils/validator');
 const sendMail = require('../utils/mailer');
+const { client: redisClient } = require('../configs/redis');
 
 module.exports = {
     register: async (req, res, next) => {
@@ -213,6 +214,35 @@ module.exports = {
                 statusCode: 200,
                 data,
                 message: 'Successfully reset your password',
+                errors: null,
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
+    logout: async (req, res, next) => {
+        try {
+            const { userId, token, tokenExp } = req;
+            const ttl = tokenExp - Math.floor(Date.now() / 1000);
+
+            const now = new Date(Date.now());
+            const dateNow = `${now.toLocaleDateString()} ${now.toTimeString()}`;
+
+            if (!redisClient.isOpen) {
+                await redisClient.connect();
+            }
+
+            redisClient.setEx(
+                `blacklist_${token}`,
+                ttl,
+                `userId ${userId} logged out at ${dateNow}`,
+            );
+
+            return res.status(200).json({
+                status: 'success',
+                statusCode: 200,
+                data: null,
+                message: 'Successfully logged out',
                 errors: null,
             });
         } catch (err) {
