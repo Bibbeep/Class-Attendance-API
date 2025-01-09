@@ -331,6 +331,52 @@ class Auth {
             passwordResetToken: token,
         };
     }
+
+    /**
+     * Method that reset password of a user
+     * @param {object} data - Containing password reset token and the new password
+     * @param {string} data.token - Password reset token
+     * @param {string} data.newPassword - New password to be updated
+     * @returns {Promise<{ user: { email: string } }>} The data of the user
+     * @throws {HttpRequestError} Will throw an error with 400 statusCode if token is invalid or expired
+     */
+    static async resetPassword(data) {
+        const { token, newPassword } = data;
+        const hashedToken = createHash('sha256').update(token).digest('hex');
+
+        const user = await prisma.user.findFirst({
+            where: {
+                passwordResetToken: hashedToken,
+                passwordResetTokenExpirationTime: {
+                    gt: new Date(Date.now()),
+                },
+            },
+        });
+
+        if (!user) {
+            throw new HttpRequestError(400, 'Request body validation error', [
+                {
+                    message: 'Invalid or expired token',
+                    context: {
+                        key: 'token',
+                        value: token,
+                    },
+                },
+            ]);
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                password: hashedPassword,
+                updatedAt: new Date(Date.now()),
+            },
+        });
+
+        return { user: { email: user.email } };
+    }
 }
 
 module.exports = Auth;

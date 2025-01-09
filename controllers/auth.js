@@ -5,6 +5,7 @@ const {
     validateResendOTP,
     validateLogin,
     validateForgotPassword,
+    validateResetPassword,
 } = require('../utils/validator');
 const sendMail = require('../utils/mailer');
 
@@ -191,6 +192,27 @@ module.exports = {
                 statusCode: 200,
                 data: { user: { email: data.user.email } },
                 message: 'Successfully sent password reset link to your email',
+                errors: null,
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
+    resetPassword: async (req, res, next) => {
+        try {
+            const { error, value } = validateResetPassword(req.body);
+
+            if (error) {
+                throw error;
+            }
+
+            const data = await AuthModel.resetPassword(value);
+
+            return res.status(200).json({
+                status: 'success',
+                statusCode: 200,
+                data,
+                message: 'Successfully reset your password',
                 errors: null,
             });
         } catch (err) {
