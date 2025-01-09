@@ -1,6 +1,6 @@
 {
   "name": "class-attendance-api",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "An API for checking, tracking, and submitting class/course presence for students.",
   "main": "app.js",
   "scripts": {
@@ -15,8 +15,8 @@
     "db:push": "prisma db push",
     "db:reset": "prisma db push --force-reset",
     "db:seed": "prisma db seed",
-    "test:unit:auth": "NODE_ENV=test jest ./tests/units/auth.unit.test.js --detectOpenHandles --coverage",
-    "test:integration:auth": "NODE_ENV=test jest ./tests/integrations/auth.integration.test.js --detectOpenHandles --coverage",
+    "test:unit:auth": "NODE_ENV=test jest ./tests/units/auth.test.js --detectOpenHandles --coverage",
+    "test:integration:auth": "NODE_ENV=test jest ./tests/integrations/auth.test.js --detectOpenHandles --coverage",
     "test:all": "NODE_ENV=test jest --detectOpenHandles --coverage"
   },
   "keywords": [
@@ -35,7 +35,8 @@
       "/node_modules/",
       "/coverage/",
       "/utils/error.js",
-      "/utils/errorHandler.js"
+      "/utils/errorHandler.js",
+      "/configs/"
     ]
   },
   "author": "Bibbeep",
@@ -63,8 +64,10 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.16",
+    "redis": "^4.7.0",
     "speakeasy": "^2.0.0"
   }
 }

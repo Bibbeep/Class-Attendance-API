@@ -26,8 +26,32 @@ const resendOTPSchema = Joi.object({
     email: Joi.string().email().required(),
 });
 
+const loginSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).max(30).required(),
+});
+
+const forgotPasswordSchema = Joi.object({
+    email: Joi.string().email().required(),
+});
+
+const resetPasswordSchema = Joi.object({
+    token: Joi.string().required(),
+    newPassword: Joi.string().min(8).max(30).required(),
+});
+
+const bearerJwtSchema = Joi.object({
+    authorization: Joi.string()
+        .pattern(/^Bearer\s/)
+        .required(),
+}).unknown(true);
+
 module.exports = {
     validateRegister: validator(registerSchema),
     validateVerifyOTP: validator(verifyOTPSchema),
     validateResendOTP: validator(resendOTPSchema),
+    validateLogin: validator(loginSchema),
+    validateForgotPassword: validator(forgotPasswordSchema),
+    validateResetPassword: validator(resetPasswordSchema),
+    validateAuthorizationHeader: validator(bearerJwtSchema),
 };

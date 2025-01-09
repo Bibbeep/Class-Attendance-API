@@ -2,6 +2,8 @@ const { PrismaClient } = require('@prisma/client');
 const HttpRequestError = require('../utils/error');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
+const jwt = require('jsonwebtoken');
+const { randomBytes, createHash } = require('crypto');
 const prisma = new PrismaClient();
 
 class Auth {
@@ -205,6 +207,175 @@ class Auth {
             },
             otp,
         };
+    }
+
+    /**
+     * Method that authenticate user with email and password
+     * @param {object} data - Containing user's email and password
+     * @param {string} data.email - User's email
+     * @param {string} data.password - User's password
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null }, accessToken: string }>} The data of the user being verified and JWT access token
+     * @throws {HttpRequestError} Will throw an error with 401 statusCode if email is not registered or incorrect password
+     */
+    static async login(data) {
+        const { email, password } = data;
+
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (!user) {
+            throw new HttpRequestError(401, 'Unauthorized', [
+                {
+                    message: 'Wrong email or password',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+                {
+                    message: 'Wrong email or password',
+                    context: {
+                        key: 'password',
+                        value: '*'.repeat(password.length),
+                    },
+                },
+            ]);
+        }
+
+        const isPasswordTrue = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordTrue) {
+            throw new HttpRequestError(401, 'Unauthorized', [
+                {
+                    message: 'Wrong email or password',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+                {
+                    message: 'Wrong email or password',
+                    context: {
+                        key: 'password',
+                        value: '*'.repeat(password.length),
+                    },
+                },
+            ]);
+        }
+
+        const payload = {
+            id: user.id,
+            first_name: user.firstName,
+            last_name: user.lastName || null,
+        };
+
+        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '1d',
+        });
+
+        return {
+            user: {
+                id: user.id,
+                email: user.email,
+                first_name: user.firstName,
+                last_name: user.lastName || null,
+            },
+            accessToken,
+        };
+    }
+
+    /**
+     * Method that generate password reset token for a user
+     * @param {object} data - Containing user's email
+     * @param {string} data.email - User's email
+     * @returns {Promise<{ user: { email: string }, passwordResetToken: string }>} The data of the user and password reset token
+     * @throws {HttpRequestError} Will throw an error with 400 statusCode if email is not registered
+     */
+    static async createPasswordResetToken(data) {
+        const { email } = data;
+
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (!user) {
+            throw new HttpRequestError(400, 'Request body validation error', [
+                {
+                    message: 'Email is not registered',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+            ]);
+        }
+
+        const token = randomBytes(32).toString('hex');
+        const hashedToken = createHash('sha256').update(token).digest('hex');
+
+        await prisma.user.update({
+            where: { email },
+            data: {
+                passwordResetToken: hashedToken,
+                passwordResetTokenExpirationTime: new Date(
+                    Date.now() + 5 * 60 * 1000,
+                ),
+            },
+        });
+
+        return {
+            user: {
+                email: user.email,
+            },
+            passwordResetToken: token,
+        };
+    }
+
+    /**
+     * Method that reset password of a user
+     * @param {object} data - Containing password reset token and the new password
+     * @param {string} data.token - Password reset token
+     * @param {string} data.newPassword - New password to be updated
+     * @returns {Promise<{ user: { email: string } }>} The data of the user
+     * @throws {HttpRequestError} Will throw an error with 400 statusCode if token is invalid or expired
+     */
+    static async resetPassword(data) {
+        const { token, newPassword } = data;
+        const hashedToken = createHash('sha256').update(token).digest('hex');
+
+        const user = await prisma.user.findFirst({
+            where: {
+                passwordResetToken: hashedToken,
+                passwordResetTokenExpirationTime: {
+                    gt: new Date(Date.now()),
+                },
+            },
+        });
+
+        if (!user) {
+            throw new HttpRequestError(400, 'Request body validation error', [
+                {
+                    message: 'Invalid or expired token',
+                    context: {
+                        key: 'token',
+                        value: token,
+                    },
+                },
+            ]);
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                password: hashedPassword,
+                updatedAt: new Date(Date.now()),
+            },
+        });
+
+        return { user: { email: user.email } };
     }
 }
 

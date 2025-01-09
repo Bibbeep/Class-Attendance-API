@@ -1,9 +1,11 @@
 /* eslint-disable no-undef */
 const { server } = require('../../app');
+const { client: redisClient } = require('../../configs/redis');
 const request = require('supertest');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
 const { PrismaClient } = require('@prisma/client');
+const { createPasswordResetToken } = require('../../models/auth');
 const prisma = new PrismaClient();
 
 const resetDatabase = async () => {
@@ -55,8 +57,13 @@ describe('Authentication Integration Tests', () => {
         await resetDatabase();
     });
 
+    beforeAll(() => {
+        redisClient.connect();
+    });
+
     afterAll(() => {
         server.close();
+        redisClient.quit();
     });
 
     describe('POST /api/register Tests', () => {
@@ -89,7 +96,7 @@ describe('Authentication Integration Tests', () => {
                     'Successfully registered a new account. OTP code has been sent to your email address',
                 errors: null,
             });
-        });
+        }, 15000);
 
         it('should fail to register a user account and return 400 if invalid request body', async () => {
             const data = {
@@ -374,7 +381,7 @@ describe('Authentication Integration Tests', () => {
                 message: 'Successfully resend OTP code to your email address',
                 errors: null,
             });
-        });
+        }, 15000);
 
         it('should fail to resend otp and return 400 if invalid request body', async () => {
             const data = { email: 123 };
@@ -442,6 +449,384 @@ describe('Authentication Integration Tests', () => {
                         context: {
                             key: 'email',
                             value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+    });
+
+    describe('POST /api/login Tests', () => {
+        it('should successfully logged in a user and return 200', async () => {
+            const data = {
+                email: 'test1@mail.com',
+                password: 'testpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/login')
+                .send(data);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                statusCode: 200,
+                data: {
+                    user: {
+                        id: 1,
+                        email: data.email,
+                        first_name: 'Jenny',
+                        last_name: null,
+                    },
+                    accessToken: response.body.data.accessToken,
+                },
+                message: 'Successfully logged in',
+                errors: null,
+            });
+        });
+
+        it('should fail to logged in a user and return 400 if invalid request body', async () => {
+            const data = {
+                password: 123,
+            };
+
+            const response = await request(server)
+                .post('/api/login')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: '"email" is required',
+                        context: {
+                            key: 'email',
+                        },
+                    },
+                    {
+                        message: '"password" must be a string',
+                        context: {
+                            key: 'password',
+                            value: data.password,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to logged in a user and return 401 if email is not registered', async () => {
+            const data = {
+                email: 'unregistered@mail.com',
+                password: 'testpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/login')
+                .send(data);
+
+            expect(response.status).toBe(401);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 401,
+                data: null,
+                message: 'Unauthorized',
+                errors: [
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'password',
+                            value: '*'.repeat(data.password.length),
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to logged in a user and return 401 if incorrect password', async () => {
+            const data = {
+                email: 'test1@mail.com',
+                password: 'incorrectpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/login')
+                .send(data);
+
+            expect(response.status).toBe(401);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 401,
+                data: null,
+                message: 'Unauthorized',
+                errors: [
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'password',
+                            value: '*'.repeat(data.password.length),
+                        },
+                    },
+                ],
+            });
+        });
+    });
+
+    describe('POST /api/forgot-password Tests', () => {
+        it('should successfully request password reset link and return 200', async () => {
+            const data = { email: 'test1@mail.com' };
+
+            const response = await request(server)
+                .post('/api/forgot-password')
+                .send(data);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                statusCode: 200,
+                data: {
+                    user: {
+                        email: data.email,
+                    },
+                },
+                message: 'Successfully sent password reset link to your email',
+                errors: null,
+            });
+        }, 15000);
+
+        it('should fail to request password reset link and return 400 if invalid request body', async () => {
+            const data = { email: 123 };
+
+            const response = await request(server)
+                .post('/api/forgot-password')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: '"email" must be a string',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to request password reset link and return 400 if unregistered email', async () => {
+            const data = { email: 'unregistered@mail.com' };
+
+            const response = await request(server)
+                .post('/api/forgot-password')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: 'Email is not registered',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+    });
+
+    describe('POST /api/reset-password Tests', () => {
+        it('should successfully reset password and return 200', async () => {
+            const userData = await createPasswordResetToken({
+                email: 'test1@mail.com',
+            });
+
+            const data = {
+                token: userData.passwordResetToken,
+                newPassword: 'newpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/reset-password')
+                .send(data);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                statusCode: 200,
+                data: {
+                    user: { email: 'test1@mail.com' },
+                },
+                message: 'Successfully reset your password',
+                errors: null,
+            });
+        });
+
+        it('should fail to reset password and return 400 if invalid request body', async () => {
+            const data = { newPassword: 123 };
+
+            const response = await request(server)
+                .post('/api/reset-password')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: '"token" is required',
+                        context: {
+                            key: 'token',
+                        },
+                    },
+                    {
+                        message: '"newPassword" must be a string',
+                        context: {
+                            key: 'newPassword',
+                            value: data.newPassword,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to reset password and return 400 if invalid or expired token', async () => {
+            const data = {
+                token: 'invalidtoken',
+                newPassword: 'newpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/reset-password')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: 'Invalid or expired token',
+                        context: {
+                            key: 'token',
+                            value: data.token,
+                        },
+                    },
+                ],
+            });
+        });
+    });
+
+    describe('POST /api/logout Tests', () => {
+        beforeEach(() => {
+            redisClient.flushDb();
+        });
+
+        afterEach(() => {
+            redisClient.flushDb();
+        });
+
+        it('should successfully logged out a user and return 200', async () => {
+            const login = {
+                email: 'test1@mail.com',
+                password: 'testpassword',
+            };
+
+            const loginData = await request(server)
+                .post('/api/login')
+                .send(login);
+
+            const response = await request(server)
+                .post('/api/logout')
+                .set(
+                    'Authorization',
+                    `Bearer ${loginData.body.data.accessToken}`,
+                );
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                statusCode: 200,
+                data: null,
+                message: 'Successfully logged out',
+                errors: null,
+            });
+        });
+
+        it('should fail to logged out a user and return 400 if invalid Authorization headers', async () => {
+            const accessToken = 'invalidToken123';
+            const response = await request(server)
+                .post('/api/logout')
+                .set('Authorization', accessToken);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: `"authorization" with value "${accessToken}" fails to match the required pattern: /^Bearer\\s/`,
+                        context: {
+                            key: 'authorization',
+                            value: accessToken,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to logged out a user and return 401 if invalid Bearer token', async () => {
+            const accessToken = 'invalidToken123';
+            const response = await request(server)
+                .post('/api/logout')
+                .set('Authorization', `Bearer ${accessToken}`);
+
+            expect(response.status).toBe(401);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 401,
+                data: null,
+                message: 'Unauthorized',
+                errors: [
+                    {
+                        message: 'Invalid or expired token',
+                        context: {
+                            key: 'request.headers.authorization',
+                            value: 'Bearer ' + '*'.repeat(accessToken.length),
                         },
                     },
                 ],

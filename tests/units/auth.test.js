@@ -1,5 +1,12 @@
 /* eslint-disable no-undef */
-const { register, verifyOTP, regenerateOTP } = require('../../models/auth');
+const {
+    register,
+    verifyOTP,
+    regenerateOTP,
+    login,
+    createPasswordResetToken,
+    resetPassword,
+} = require('../../models/auth');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
@@ -55,7 +62,7 @@ describe('Authentication Unit Tests', () => {
         await resetDatabase();
     });
 
-    describe('Register Model Tests', () => {
+    describe('register Tests', () => {
         it('should return user data and otp', async () => {
             const data = {
                 email: 'test3@mail.com',
@@ -116,7 +123,7 @@ describe('Authentication Unit Tests', () => {
         });
     });
 
-    describe('Verify OTP Model Tests', () => {
+    describe('verifyOTP Tests', () => {
         it('should return user data and verifies the new user', async () => {
             const registerData = {
                 email: 'test3@mail.com',
@@ -233,7 +240,7 @@ describe('Authentication Unit Tests', () => {
         });
     });
 
-    describe('Regenerate OTP Model Tests', () => {
+    describe('regenerateOTP Tests', () => {
         it('should return user data and otp', async () => {
             const data = { email: 'test2@mail.com' };
             const returnData = await regenerateOTP(data);
@@ -293,6 +300,176 @@ describe('Authentication Unit Tests', () => {
                         context: {
                             key: 'email',
                             value: data.email,
+                        },
+                    },
+                ]),
+            );
+        });
+    });
+
+    describe('login Tests', () => {
+        it('should return user data and access token', async () => {
+            const data = {
+                email: 'test1@mail.com',
+                password: 'testpassword',
+            };
+
+            const returnData = await login(data);
+
+            expect(returnData).toHaveProperty('user');
+            expect(returnData.user).toHaveProperty('id');
+            expect(returnData.user).toHaveProperty('email');
+            expect(returnData.user).toHaveProperty('first_name');
+            expect(returnData.user).toHaveProperty('last_name');
+
+            expect(typeof returnData.user.id).toBe('number');
+            expect(typeof returnData.user.email).toBe('string');
+            expect(typeof returnData.user.first_name).toBe('string');
+
+            if (returnData.user.last_name) {
+                expect(typeof returnData.user.last_name).toBe('string');
+            }
+
+            expect(returnData.user).toMatchObject({
+                id: 1,
+                email: data.email,
+                first_name: 'Jenny',
+                last_name: null,
+            });
+
+            expect(returnData).toHaveProperty('accessToken');
+            expect(typeof returnData.accessToken).toBe('string');
+            expect(isNaN(returnData.accessToken)).toBe(true);
+        });
+
+        it('should throw an error if email is unregistered', async () => {
+            const data = {
+                email: 'unregistered@mail.com',
+                password: 'testpassword',
+            };
+
+            await expect(login(data)).rejects.toThrow(
+                new HttpRequestError(401, 'Unauthorized', [
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'password',
+                            value: '*'.repeat(data.password.length),
+                        },
+                    },
+                ]),
+            );
+        });
+
+        it('should throw an error if incorrect password', async () => {
+            const data = {
+                email: 'test1@mail.com',
+                password: 'incorrectpassword',
+            };
+
+            await expect(login(data)).rejects.toThrow(
+                new HttpRequestError(401, 'Unauthorized', [
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                    {
+                        message: 'Wrong email or password',
+                        context: {
+                            key: 'password',
+                            value: '*'.repeat(data.password.length),
+                        },
+                    },
+                ]),
+            );
+        });
+    });
+
+    describe('createPasswordResetToken Tests', () => {
+        it('should return user data and password reset token', async () => {
+            const data = { email: 'test1@mail.com' };
+
+            const returnData = await createPasswordResetToken(data);
+
+            expect(returnData).toHaveProperty('user');
+            expect(returnData.user).toHaveProperty('email');
+            expect(typeof returnData.user.email).toBe('string');
+
+            expect(returnData.user.email).toBe(data.email);
+
+            expect(returnData).toHaveProperty('passwordResetToken');
+            expect(typeof returnData.passwordResetToken).toBe('string');
+            expect(isNaN(returnData.passwordResetToken)).toBe(true);
+        });
+
+        it('should throw an error if email is not registered', async () => {
+            const data = { email: 'unregistered@mail.com' };
+
+            await expect(createPasswordResetToken(data)).rejects.toThrow(
+                new HttpRequestError(400, 'Request body validation error', [
+                    {
+                        message: 'Email is not registered',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ]),
+            );
+        });
+    });
+
+    describe('resetPassword Tests', () => {
+        it('should return user data', async () => {
+            const user = { email: 'test1@mail.com' };
+            const data = await createPasswordResetToken(user);
+            const newPassword = 'newpassword';
+
+            const returnData = await resetPassword({
+                token: data.passwordResetToken,
+                newPassword,
+            });
+
+            expect(returnData).toHaveProperty('user');
+            expect(returnData.user).toHaveProperty('email');
+            expect(typeof returnData.user.email).toBe('string');
+
+            expect(returnData.user.email).toBe(user.email);
+
+            const updatedUserData = await prisma.user.findUnique({
+                where: { email: user.email },
+            });
+
+            expect(
+                bcrypt.compare(newPassword, updatedUserData.password),
+            ).resolves.toBe(true);
+        });
+
+        it('should throw an error if token is invalid or expired', async () => {
+            const user = { email: 'test1@mail.com' };
+            await createPasswordResetToken(user);
+            const data = {
+                token: 'invalidtoken',
+                newPassword: 'newpassword',
+            };
+
+            expect(resetPassword(data)).rejects.toThrow(
+                new HttpRequestError(400, 'Request body validation error', [
+                    {
+                        message: 'Invalid or expired token',
+                        context: {
+                            key: 'token',
+                            value: data.token,
                         },
                     },
                 ]),

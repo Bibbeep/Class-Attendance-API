@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(express.json());
-app.use(router);
+app.use('/api', router);
 app.use(errorHandler);
 
 const server = app.listen(PORT, () => {

@@ -1453,50 +1453,5 @@
         "role": "LECTURER",
         "passwordResetToken": null,
         "passwordResetTokenExpirationTime": null
-    },
-    {
-        "email": "nkhoter2p@discovery.com",
-        "phoneNumber": "2281835394",
-        "password": "$2a$04$PG/Iil1LAKUgscY3piNcLOn8YP5.AWJSuY1iSd5.hI/UHcVu7n3HS",
-        "firstName": "Nana",
-        "lastName": "Khoter",
-        "birthDate": "2012-10-02T06:22:23Z",
-        "otpSecret": "75c59d4b1c4d87b6359b8e69bded194b501a47e7",
-        "createdAt": "2015-07-23T22:48:51Z",
-        "updatedAt": "2016-08-10T12:34:03Z",
-        "isVerified": true,
-        "role": "STUDENT",
-        "passwordResetToken": "f0b493c6e61f80ffa84775d06abafaa7773cc921",
-        "passwordResetTokenExpirationTime": "2016-08-17T18:45:21Z"
-    },
-    {
-        "email": "ffigin2q@merriam-webster.com",
-        "phoneNumber": "9137811216",
-        "password": "$2a$04$oaEMkv7DntmAPacoHeN2/O71QSQ8lXH0XkvlOZSi4nWqdMRTcoGW2",
-        "firstName": "Farleigh",
-        "lastName": "Figin",
-        "birthDate": "2005-04-04T13:43:39Z",
-        "otpSecret": "67897a439bd4243c1e523e1849a6fc3eb2bb3eb0",
-        "createdAt": "2018-05-13T06:23:27Z",
-        "updatedAt": "2020-10-18T02:25:21Z",
-        "isVerified": true,
-        "role": "ADMIN",
-        "passwordResetToken": null,
-        "passwordResetTokenExpirationTime": "2009-01-19T13:51:49Z"
-    },
-    {
-        "email": "cboyfield2r@issuu.com",
-        "phoneNumber": "2279439063",
-        "password": "$2a$04$kAo/Ud8YGFOz2TeDiuHp/.VAKORQDO8d10LdMXT4xw7qMwcOQI5gm",
-        "firstName": "Carlen",
-        "lastName": "Boyfield",
-        "birthDate": "2011-11-21T02:31:33Z",
-        "otpSecret": "1b9c7a00670124f40ae39af75dfcdcd479f1a467",
-        "createdAt": "2009-12-31T00:55:56Z",
-        "updatedAt": "2020-01-16T14:18:04Z",
-        "isVerified": false,
-        "role": "STUDENT",
-        "passwordResetToken": null,
-        "passwordResetTokenExpirationTime": "2017-04-18T00:05:27Z"
     }
 ]
