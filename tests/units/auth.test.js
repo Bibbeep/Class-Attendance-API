@@ -5,6 +5,7 @@ const {
     regenerateOTP,
     login,
     createPasswordResetToken,
+    resetPassword,
 } = require('../../models/auth');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
@@ -421,6 +422,54 @@ describe('Authentication Unit Tests', () => {
                         context: {
                             key: 'email',
                             value: data.email,
+                        },
+                    },
+                ]),
+            );
+        });
+    });
+
+    describe('resetPassword Tests', () => {
+        it('should return user data', async () => {
+            const user = { email: 'test1@mail.com' };
+            const data = await createPasswordResetToken(user);
+            const newPassword = 'newpassword';
+
+            const returnData = await resetPassword({
+                token: data.passwordResetToken,
+                newPassword,
+            });
+
+            expect(returnData).toHaveProperty('user');
+            expect(returnData.user).toHaveProperty('email');
+            expect(typeof returnData.user.email).toBe('string');
+
+            expect(returnData.user.email).toBe(user.email);
+
+            const updatedUserData = await prisma.user.findUnique({
+                where: { email: user.email },
+            });
+
+            expect(
+                bcrypt.compare(newPassword, updatedUserData.password),
+            ).resolves.toBe(true);
+        });
+
+        it('should throw an error if token is invalid or expired', async () => {
+            const user = { email: 'test1@mail.com' };
+            await createPasswordResetToken(user);
+            const data = {
+                token: 'invalidtoken',
+                newPassword: 'newpassword',
+            };
+
+            expect(resetPassword(data)).rejects.toThrow(
+                new HttpRequestError(400, 'Request body validation error', [
+                    {
+                        message: 'Invalid or expired token',
+                        context: {
+                            key: 'token',
+                            value: data.token,
                         },
                     },
                 ]),
