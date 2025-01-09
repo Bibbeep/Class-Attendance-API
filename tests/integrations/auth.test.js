@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 const { server } = require('../../app');
+const { client: redisClient } = require('../../configs/redis');
 const request = require('supertest');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
@@ -56,8 +57,13 @@ describe('Authentication Integration Tests', () => {
         await resetDatabase();
     });
 
+    beforeAll(() => {
+        redisClient.connect();
+    });
+
     afterAll(() => {
         server.close();
+        redisClient.quit();
     });
 
     describe('POST /api/register Tests', () => {
@@ -736,6 +742,91 @@ describe('Authentication Integration Tests', () => {
                         context: {
                             key: 'token',
                             value: data.token,
+                        },
+                    },
+                ],
+            });
+        });
+    });
+
+    describe('POST /api/logout Tests', () => {
+        beforeEach(() => {
+            redisClient.flushDb();
+        });
+
+        afterEach(() => {
+            redisClient.flushDb();
+        });
+
+        it('should successfully logged out a user and return 200', async () => {
+            const login = {
+                email: 'test1@mail.com',
+                password: 'testpassword',
+            };
+
+            const loginData = await request(server)
+                .post('/api/login')
+                .send(login);
+
+            const response = await request(server)
+                .post('/api/logout')
+                .set(
+                    'Authorization',
+                    `Bearer ${loginData.body.data.accessToken}`,
+                );
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                statusCode: 200,
+                data: null,
+                message: 'Successfully logged out',
+                errors: null,
+            });
+        });
+
+        it('should fail to logged out a user and return 400 if invalid Authorization headers', async () => {
+            const accessToken = 'invalidToken123';
+            const response = await request(server)
+                .post('/api/logout')
+                .set('Authorization', accessToken);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: `"authorization" with value "${accessToken}" fails to match the required pattern: /^Bearer\\s/`,
+                        context: {
+                            key: 'authorization',
+                            value: accessToken,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to logged out a user and return 401 if invalid Bearer token', async () => {
+            const accessToken = 'invalidToken123';
+            const response = await request(server)
+                .post('/api/logout')
+                .set('Authorization', `Bearer ${accessToken}`);
+
+            expect(response.status).toBe(401);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 401,
+                data: null,
+                message: 'Unauthorized',
+                errors: [
+                    {
+                        message: 'Invalid or expired token',
+                        context: {
+                            key: 'request.headers.authorization',
+                            value: 'Bearer ' + '*'.repeat(accessToken.length),
                         },
                     },
                 ],

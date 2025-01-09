@@ -35,7 +35,8 @@
       "/node_modules/",
       "/coverage/",
       "/utils/error.js",
-      "/utils/errorHandler.js"
+      "/utils/errorHandler.js",
+      "/configs/"
     ]
   },
   "author": "Bibbeep",
