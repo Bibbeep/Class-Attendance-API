@@ -4,6 +4,7 @@ const request = require('supertest');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
 const { PrismaClient } = require('@prisma/client');
+const { createPasswordResetToken } = require('../../models/auth');
 const prisma = new PrismaClient();
 
 const resetDatabase = async () => {
@@ -89,7 +90,7 @@ describe('Authentication Integration Tests', () => {
                     'Successfully registered a new account. OTP code has been sent to your email address',
                 errors: null,
             });
-        });
+        }, 15000);
 
         it('should fail to register a user account and return 400 if invalid request body', async () => {
             const data = {
@@ -374,7 +375,7 @@ describe('Authentication Integration Tests', () => {
                 message: 'Successfully resend OTP code to your email address',
                 errors: null,
             });
-        });
+        }, 15000);
 
         it('should fail to resend otp and return 400 if invalid request body', async () => {
             const data = { email: 123 };
@@ -602,7 +603,7 @@ describe('Authentication Integration Tests', () => {
                 message: 'Successfully sent password reset link to your email',
                 errors: null,
             });
-        });
+        }, 15000);
 
         it('should fail to request password reset link and return 400 if invalid request body', async () => {
             const data = { email: 123 };
@@ -648,6 +649,93 @@ describe('Authentication Integration Tests', () => {
                         context: {
                             key: 'email',
                             value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+    });
+
+    describe('POST /api/reset-password Tests', () => {
+        it('should successfully reset password and return 200', async () => {
+            const userData = await createPasswordResetToken({
+                email: 'test1@mail.com',
+            });
+
+            const data = {
+                token: userData.passwordResetToken,
+                newPassword: 'newpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/reset-password')
+                .send(data);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                statusCode: 200,
+                data: {
+                    user: { email: 'test1@mail.com' },
+                },
+                message: 'Successfully reset your password',
+                errors: null,
+            });
+        });
+
+        it('should fail to reset password and return 400 if invalid request body', async () => {
+            const data = { newPassword: 123 };
+
+            const response = await request(server)
+                .post('/api/reset-password')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: '"token" is required',
+                        context: {
+                            key: 'token',
+                        },
+                    },
+                    {
+                        message: '"newPassword" must be a string',
+                        context: {
+                            key: 'newPassword',
+                            value: data.newPassword,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to reset password and return 400 if invalid or expired token', async () => {
+            const data = {
+                token: 'invalidtoken',
+                newPassword: 'newpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/reset-password')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                statusCode: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: 'Invalid or expired token',
+                        context: {
+                            key: 'token',
+                            value: data.token,
                         },
                     },
                 ],
