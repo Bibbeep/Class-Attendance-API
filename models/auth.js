@@ -15,7 +15,7 @@ class Auth {
      * @param {string} data.first_name - The full name of the user being created
      * @param {string=} data.last_name - The full name of the user being created
      * @param {string} data.birth_date - The birth date of the user being created
-     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null }, otp: string }>} The data of the user being created
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role: string }, otp: string }>} The data of the user being created
      * @throws {HttpRequestError} Will throw an error with 409 statusCode if the user's email is already registered or 500 statusCode if fail to communicate with the database
      */
     static async register(data) {
@@ -70,6 +70,7 @@ class Auth {
                 email: user.email,
                 first_name: user.firstName,
                 last_name: user.lastName,
+                role: user.role,
             },
             otp,
         };
