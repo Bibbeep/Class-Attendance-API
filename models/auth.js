@@ -245,6 +245,18 @@ class Auth {
             ]);
         }
 
+        if (!user.isVerified) {
+            throw new HttpRequestError(400, 'Request body validation error', [
+                {
+                    message: 'Email is not verified',
+                    context: {
+                        key: 'email',
+                        value: email,
+                    },
+                },
+            ]);
+        }
+
         const isPasswordTrue = await bcrypt.compare(password, user.password);
 
         if (!isPasswordTrue) {

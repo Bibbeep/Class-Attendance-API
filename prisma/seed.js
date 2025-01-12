@@ -43,6 +43,16 @@ async function seedUser() {
                 role: 'STUDENT',
             },
             {
+                email: 'student2@presently.com',
+                phoneNumber: '111110000',
+                password: bcrypt.hashSync('password', 10),
+                firstName: 'Student',
+                lastName: '2',
+                birthDate: new Date('2000-02-02'),
+                isVerified: false,
+                role: 'STUDENT',
+            },
+            {
                 email: 'lecturer1@presently.com',
                 phoneNumber: '222222222',
                 password: bcrypt.hashSync('password', 10),
