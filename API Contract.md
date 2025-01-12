@@ -48,7 +48,7 @@
 ```json
 {
     "status": "success",
-    "statusCode": 201,
+    "status_code": 201,
     "data": {
         "user": {
             "id": 101,
@@ -86,7 +86,7 @@
 ```json
 {
     "status": "success",
-    "statusCode": 200,
+    "status_code": 200,
     "data": {
         "id": 101,
         "email": "test1@mail.com",
@@ -121,7 +121,7 @@
 ```json
 {
     "status": "success",
-    "statusCode": 200,
+    "status_code": 200,
     "data": null,
     "message": "Successfully resend OTP code to your email address",
     "errors": null
@@ -151,7 +151,7 @@
 ```json
 {
     "status": "success",
-    "statusCode": 200,
+    "status_code": 200,
     "data": {
         "user": {
             "id": 98,
@@ -184,7 +184,7 @@
 ```json
 {
 	"status": "success",
-	"statusCode": 200,
+	"status_code": 200,
 	"data": {
 		"user": {
 			"id": 169,
@@ -219,7 +219,7 @@ Headers: Authorization (Bearer token)
 ```json
 {
     "status": "success",
-    "statusCode": 200,
+    "status_code": 200,
     "data": null,
     "message": "Successfully logged out",
     "errors": null
@@ -248,7 +248,7 @@ Headers: Authorization (Bearer token)
 ```json
 {
     "status": "success",
-    "statusCode": 200,
+    "status_code": 200,
     "data": {
         "user": {
             "email": "test1@mail.com"
@@ -282,7 +282,7 @@ Headers: Authorization (Bearer token)
 ```json
 {
     "status": "success",
-    "statusCode": 200,
+    "status_code": 200,
     "data": {
         "user": {
             "email": "test1@mail.com"
@@ -311,7 +311,7 @@ Headers: Authorization (Bearer token)
 ```json
 {
     "status": "success",
-    "statusCode": 200,
+    "status_code": 200,
     "data": {
         "my-classes": [
             {
@@ -385,7 +385,7 @@ Headers: Authorization (Bearer token)
 ```json
 {
     "status": "success",
-    "statusCode": 200,
+    "status_code": 200,
     "data": {
         "my_class": {
             "id": 1,
@@ -455,7 +455,7 @@ Headers: Authorization (Bearer token)
 ```json
 {
     "status": "success",
-    "statusCode": 201,
+    "status_code": 201,
     "data": {
         "my_classes": [
             {
@@ -488,7 +488,7 @@ Headers: Authorization (Bearer token)
 ```json
 {
     "status": "success",
-    "statusCode": 200,
+    "status_code": 200,
     "data": null,
     "message": "Successfully un-enrolled to class",
     "errors": null
