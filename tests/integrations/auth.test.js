@@ -521,6 +521,34 @@ describe('Authentication Integration Tests', () => {
             });
         });
 
+        it('should fail to logged in a user and return 400 if email is not verified', async () => {
+            const data = {
+                email: 'test2@mail.com',
+                password: 'testpassword',
+            };
+
+            const response = await request(server)
+                .post('/api/login')
+                .send(data);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                status_code: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message: 'Email is not verified',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ],
+            });
+        });
+
         it('should fail to logged in a user and return 401 if email is not registered', async () => {
             const data = {
                 email: 'unregistered@mail.com',

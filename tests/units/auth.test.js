@@ -351,6 +351,25 @@ describe('Authentication Unit Tests', () => {
             expect(isNaN(returnData.accessToken)).toBe(true);
         });
 
+        it('should throw an error if email is not verified', async () => {
+            const data = {
+                email: 'test2@mail.com',
+                password: 'testpassword',
+            };
+
+            await expect(login(data)).rejects.toThrow(
+                new HttpRequestError(400, 'Request body validation error', [
+                    {
+                        message: 'Email is not verified',
+                        context: {
+                            key: 'email',
+                            value: data.email,
+                        },
+                    },
+                ]),
+            );
+        });
+
         it('should throw an error if email is unregistered', async () => {
             const data = {
                 email: 'unregistered@mail.com',
