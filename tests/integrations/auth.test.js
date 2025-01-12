@@ -231,6 +231,7 @@ describe('Authentication Integration Tests', () => {
                     email: registerData.email,
                     first_name: registerData.first_name,
                     last_name: registerData.last_name,
+                    role: 'STUDENT',
                 },
                 message: 'Successfully verified a new account',
                 errors: null,

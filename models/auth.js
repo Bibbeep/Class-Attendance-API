@@ -81,7 +81,7 @@ class Auth {
      * @param {object} data - user's email and one-time passcode
      * @param {string} data.email - user's email
      * @param {string} data.otp - One-time passcode to be verified
-     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string } }>} The data of the user being verified
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role: string } }>} The data of the user being verified
      * @throws {HttpRequestError} Will throw an error with 400 statusCode if email is not registered or invalid/expired OTP, or 409 statusCode if email is already verified
      */
     static async verifyOTP(data) {
@@ -150,6 +150,7 @@ class Auth {
                 email: user.email,
                 first_name: user.firstName,
                 last_name: user.lastName,
+                role: user.role,
             },
         };
     }
