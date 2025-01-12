@@ -75,7 +75,7 @@ module.exports = {
                 status: 'success',
                 status_code: 200,
                 data: {
-                    ...data.user,
+                    user: { ...data.user },
                 },
                 message: 'Successfully verified a new account',
                 errors: null,

@@ -227,11 +227,13 @@ describe('Authentication Integration Tests', () => {
                 status: 'success',
                 status_code: 200,
                 data: {
-                    id: 3,
-                    email: registerData.email,
-                    first_name: registerData.first_name,
-                    last_name: registerData.last_name,
-                    role: 'STUDENT',
+                    user: {
+                        id: 3,
+                        email: registerData.email,
+                        first_name: registerData.first_name,
+                        last_name: registerData.last_name,
+                        role: 'STUDENT',
+                    },
                 },
                 message: 'Successfully verified a new account',
                 errors: null,
