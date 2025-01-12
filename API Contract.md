@@ -21,13 +21,16 @@
 | `GET` | `/api/classes/:class_id/attendances/:attendance_id` | Retrieves an attendance details to for a class | TRUE |
 | `POST` | `/api/classes/:class_id/attendances` | Submits an attendance/sick leave to a class | TRUE |
 | `GET` | `/api/notifications` | Retrieves all notifications | TRUE |
+| `GET` | `/api/users/:user_id` | Retrieves a user details | TRUE |
+| `PATCH` | `/api/users/:user_id` | Updates a user details | TRUE |
+| `DELETE` | `/api/users/:user_id` | Deletes a user details | TRUE |
 
 ---
 
 ## POST /api/register
 
 <details>
-<summary>Request body example</summary>
+<summary>Request example</summary>
 
 `POST /api/register`
 ```json
@@ -88,11 +91,13 @@
     "status": "success",
     "status_code": 200,
     "data": {
-        "id": 101,
-        "email": "test1@mail.com",
-        "first_name": "Test",
-        "last_name": "User",
-        "role": "STUDENT"
+        "user": {
+            "id": 101,
+            "email": "test1@mail.com",
+            "first_name": "Test",
+            "last_name": "User",
+            "role": "STUDENT"
+        }
     },
     "message": "Successfully verified a new account",
     "errors": null
@@ -491,6 +496,109 @@ Headers: Authorization (Bearer token)
     "status_code": 200,
     "data": null,
     "message": "Successfully un-enrolled to class",
+    "errors": null
+}
+```
+
+</details>
+
+## GET /api/users/:user_id
+
+<details>
+<summary>Request example</summary>
+
+`GET /api/users/1`
+
+</details>
+
+<details>
+<summary>Success response example</summary>
+
+```json
+{
+    "status": "success",
+    "status_code": 200,
+    "data": {
+        "user": {
+            "id": 1,
+            "email": "student1@mail.com",
+            "phone_number": "0000000000",
+            "first_name": "Student",
+            "last_name": "1",
+            "birth_date": "2000-01-01",
+            "created_at": "2024-12-31T15:00:03Z",
+            "updated_at": "2025-01-02T07:13:21Z",
+            "is_verified": true,
+            "role": "STUDENT"
+        }
+    },
+    "message": "Successfully retrieved user data",
+    "errors": null
+}
+```
+
+</details>
+
+## PATCH /api/users/:user_id
+
+<details>
+<summary>Request example</summary>
+
+`PATCH /api/users/1`
+```json
+{
+    "phone_number": "0800080000"
+}
+```
+
+</details>
+
+<details>
+<summary>Success response example</summary>
+
+```json
+{
+    "status": "success",
+    "status_code": 200,
+    "data": {
+        "user": {
+            "id": 1,
+            "email": "student1@mail.com",
+            "phone_number": "0800080000",
+            "first_name": "Student",
+            "last_name": "1",
+            "birth_date": "2000-01-01",
+            "created_at": "2024-12-31T15:00:03Z",
+            "updated_at": "2025-01-12T08:39:00Z",
+            "is_verified": true,
+            "role": "STUDENT"
+        }
+    },
+    "message": "Successfully updated user data",
+    "errors": null
+}
+```
+
+</details>
+
+## DELETE /api/users/:user_id
+
+<details>
+<summary>Request example</summary>
+
+`DELETE /api/users/1`
+
+</details>
+
+<details>
+<summary>Success response example</summary>
+
+```json
+{
+    "status": "success",
+    "status_code": 200,
+    "data": null,
+    "message": "Successfully deleted user data",
     "errors": null
 }
 ```
