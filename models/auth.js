@@ -216,7 +216,7 @@ class Auth {
      * @param {object} data - Containing user's email and password
      * @param {string} data.email - User's email
      * @param {string} data.password - User's password
-     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null }, accessToken: string }>} The data of the user being verified and JWT access token
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role:  string }, accessToken: string }>} The data of the user being verified and JWT access token
      * @throws {HttpRequestError} Will throw an error with 401 statusCode if email is not registered or incorrect password
      */
     static async login(data) {
@@ -270,6 +270,7 @@ class Auth {
             id: user.id,
             first_name: user.firstName,
             last_name: user.lastName || null,
+            role: user.role,
         };
 
         const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -282,6 +283,7 @@ class Auth {
                 email: user.email,
                 first_name: user.firstName,
                 last_name: user.lastName || null,
+                role: user.role,
             },
             accessToken,
         };

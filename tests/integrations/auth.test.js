@@ -479,6 +479,7 @@ describe('Authentication Integration Tests', () => {
                         email: data.email,
                         first_name: 'Jenny',
                         last_name: null,
+                        role: 'STUDENT',
                     },
                     accessToken: response.body.data.accessToken,
                 },
