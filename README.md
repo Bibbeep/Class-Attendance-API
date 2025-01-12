@@ -74,6 +74,7 @@ Class Attendance API is a project built to manage student attendance. The projec
 | `POST` | `/api/classes/:class_id/attendances` | Submits an attendance/sick leave to a class | TRUE |
 | `GET` | `/api/notifications` | Retrieves all notifications | TRUE |
 | `GET` | `/api/users/:user_id` | Retrieves a user details | TRUE |
-| `PUT` | `/api/users/:user_id` | Update a user details | TRUE |
+| `PATCH` | `/api/users/:user_id` | Updates a user details | TRUE |
+| `DELETE` | `/api/users/:user_id` | Deletes a user details | TRUE |
 
 ---
