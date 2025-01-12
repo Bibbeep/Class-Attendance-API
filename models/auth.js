@@ -15,7 +15,7 @@ class Auth {
      * @param {string} data.first_name - The full name of the user being created
      * @param {string=} data.last_name - The full name of the user being created
      * @param {string} data.birth_date - The birth date of the user being created
-     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null }, otp: string }>} The data of the user being created
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role: string }, otp: string }>} The data of the user being created
      * @throws {HttpRequestError} Will throw an error with 409 statusCode if the user's email is already registered or 500 statusCode if fail to communicate with the database
      */
     static async register(data) {
@@ -70,6 +70,7 @@ class Auth {
                 email: user.email,
                 first_name: user.firstName,
                 last_name: user.lastName,
+                role: user.role,
             },
             otp,
         };
@@ -80,7 +81,7 @@ class Auth {
      * @param {object} data - user's email and one-time passcode
      * @param {string} data.email - user's email
      * @param {string} data.otp - One-time passcode to be verified
-     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string } }>} The data of the user being verified
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role: string } }>} The data of the user being verified
      * @throws {HttpRequestError} Will throw an error with 400 statusCode if email is not registered or invalid/expired OTP, or 409 statusCode if email is already verified
      */
     static async verifyOTP(data) {
@@ -149,6 +150,7 @@ class Auth {
                 email: user.email,
                 first_name: user.firstName,
                 last_name: user.lastName,
+                role: user.role,
             },
         };
     }
@@ -214,7 +216,7 @@ class Auth {
      * @param {object} data - Containing user's email and password
      * @param {string} data.email - User's email
      * @param {string} data.password - User's password
-     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null }, accessToken: string }>} The data of the user being verified and JWT access token
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role:  string }, accessToken: string }>} The data of the user being verified and JWT access token
      * @throws {HttpRequestError} Will throw an error with 401 statusCode if email is not registered or incorrect password
      */
     static async login(data) {
@@ -268,6 +270,7 @@ class Auth {
             id: user.id,
             first_name: user.firstName,
             last_name: user.lastName || null,
+            role: user.role,
         };
 
         const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -280,6 +283,7 @@ class Auth {
                 email: user.email,
                 first_name: user.firstName,
                 last_name: user.lastName || null,
+                role: user.role,
             },
             accessToken,
         };

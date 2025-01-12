@@ -83,13 +83,14 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(201);
             expect(response.body).toMatchObject({
                 status: 'success',
-                statusCode: 201,
+                status_code: 201,
                 data: {
                     user: {
                         id: 3,
                         email: data.email,
                         first_name: data.first_name,
                         last_name: data.last_name,
+                        role: 'STUDENT',
                     },
                 },
                 message:
@@ -113,7 +114,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -171,7 +172,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(409);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 409,
+                status_code: 409,
                 data: null,
                 message: 'Resource conflict',
                 errors: [
@@ -224,12 +225,13 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(200);
             expect(response.body).toMatchObject({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: {
                     id: 3,
                     email: registerData.email,
                     first_name: registerData.first_name,
                     last_name: registerData.last_name,
+                    role: 'STUDENT',
                 },
                 message: 'Successfully verified a new account',
                 errors: null,
@@ -248,7 +250,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -294,7 +296,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -322,7 +324,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -350,7 +352,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(409);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 409,
+                status_code: 409,
                 data: null,
                 message: 'Resource conflict',
                 errors: [
@@ -376,7 +378,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(200);
             expect(response.body).toMatchObject({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: null,
                 message: 'Successfully resend OTP code to your email address',
                 errors: null,
@@ -392,7 +394,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -416,7 +418,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -440,7 +442,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(409);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 409,
+                status_code: 409,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -470,13 +472,14 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(200);
             expect(response.body).toMatchObject({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: {
                     user: {
                         id: 1,
                         email: data.email,
                         first_name: 'Jenny',
                         last_name: null,
+                        role: 'STUDENT',
                     },
                     accessToken: response.body.data.accessToken,
                 },
@@ -497,7 +500,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -531,7 +534,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(401);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 401,
+                status_code: 401,
                 data: null,
                 message: 'Unauthorized',
                 errors: [
@@ -566,7 +569,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(401);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 401,
+                status_code: 401,
                 data: null,
                 message: 'Unauthorized',
                 errors: [
@@ -600,7 +603,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(200);
             expect(response.body).toMatchObject({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: {
                     user: {
                         email: data.email,
@@ -621,7 +624,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -646,7 +649,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -680,7 +683,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(200);
             expect(response.body).toMatchObject({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: {
                     user: { email: 'test1@mail.com' },
                 },
@@ -699,7 +702,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -733,7 +736,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -778,7 +781,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(200);
             expect(response.body).toMatchObject({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: null,
                 message: 'Successfully logged out',
                 errors: null,
@@ -794,7 +797,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 400,
+                status_code: 400,
                 data: null,
                 message: 'Request body validation error',
                 errors: [
@@ -818,7 +821,7 @@ describe('Authentication Integration Tests', () => {
             expect(response.status).toBe(401);
             expect(response.body).toMatchObject({
                 status: 'fail',
-                statusCode: 401,
+                status_code: 401,
                 data: null,
                 message: 'Unauthorized',
                 errors: [

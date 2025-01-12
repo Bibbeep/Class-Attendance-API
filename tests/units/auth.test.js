@@ -79,10 +79,12 @@ describe('Authentication Unit Tests', () => {
             expect(returnData.user).toHaveProperty('email');
             expect(returnData.user).toHaveProperty('first_name');
             expect(returnData.user).toHaveProperty('last_name');
+            expect(returnData.user).toHaveProperty('role');
 
             expect(typeof returnData.user.id).toBe('number');
             expect(typeof returnData.user.email).toBe('string');
             expect(typeof returnData.user.first_name).toBe('string');
+            expect(typeof returnData.user.role).toBe('string');
 
             if (returnData.user.last_name) {
                 expect(typeof returnData.user.last_name).toBe('string');
@@ -93,6 +95,7 @@ describe('Authentication Unit Tests', () => {
                 email: data.email,
                 first_name: data.first_name,
                 last_name: data.last_name,
+                role: 'STUDENT',
             });
 
             expect(returnData).toHaveProperty('otp');
@@ -147,10 +150,12 @@ describe('Authentication Unit Tests', () => {
             expect(returnData.user).toHaveProperty('email');
             expect(returnData.user).toHaveProperty('first_name');
             expect(returnData.user).toHaveProperty('last_name');
+            expect(returnData.user).toHaveProperty('role');
 
             expect(typeof returnData.user.id).toBe('number');
             expect(typeof returnData.user.email).toBe('string');
             expect(typeof returnData.user.first_name).toBe('string');
+            expect(typeof returnData.user.role).toBe('string');
 
             if (returnData.user.last_name) {
                 expect(typeof returnData.user.last_name).toBe('string');
@@ -169,6 +174,7 @@ describe('Authentication Unit Tests', () => {
                 email: userData.user.email,
                 first_name: userData.user.first_name,
                 last_name: userData.user.last_name,
+                role: 'STUDENT',
             });
         });
 
@@ -321,10 +327,12 @@ describe('Authentication Unit Tests', () => {
             expect(returnData.user).toHaveProperty('email');
             expect(returnData.user).toHaveProperty('first_name');
             expect(returnData.user).toHaveProperty('last_name');
+            expect(returnData.user).toHaveProperty('role');
 
             expect(typeof returnData.user.id).toBe('number');
             expect(typeof returnData.user.email).toBe('string');
             expect(typeof returnData.user.first_name).toBe('string');
+            expect(typeof returnData.user.role).toBe('string');
 
             if (returnData.user.last_name) {
                 expect(typeof returnData.user.last_name).toBe('string');
@@ -335,6 +343,7 @@ describe('Authentication Unit Tests', () => {
                 email: data.email,
                 first_name: 'Jenny',
                 last_name: null,
+                role: 'STUDENT',
             });
 
             expect(returnData).toHaveProperty('accessToken');
