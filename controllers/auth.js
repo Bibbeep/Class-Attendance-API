@@ -49,7 +49,7 @@ module.exports = {
 
             return res.status(201).json({
                 status: 'success',
-                statusCode: 201,
+                status_code: 201,
                 data: {
                     user: { ...data.user },
                 },
@@ -73,7 +73,7 @@ module.exports = {
 
             return res.status(200).json({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: {
                     ...data.user,
                 },
@@ -122,7 +122,7 @@ module.exports = {
 
             return res.status(200).json({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: null,
                 message: 'Successfully resend OTP code to your email address',
                 errors: null,
@@ -143,7 +143,7 @@ module.exports = {
 
             return res.status(200).json({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data,
                 message: 'Successfully logged in',
                 errors: null,
@@ -190,7 +190,7 @@ module.exports = {
 
             return res.status(200).json({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: { user: { email: data.user.email } },
                 message: 'Successfully sent password reset link to your email',
                 errors: null,
@@ -211,7 +211,7 @@ module.exports = {
 
             return res.status(200).json({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data,
                 message: 'Successfully reset your password',
                 errors: null,
@@ -240,7 +240,7 @@ module.exports = {
 
             return res.status(200).json({
                 status: 'success',
-                statusCode: 200,
+                status_code: 200,
                 data: null,
                 message: 'Successfully logged out',
                 errors: null,
