@@ -23,11 +23,14 @@ passport.use(
 
                 const peopleResponse = await peopleService.people.get({
                     resourceName: 'people/me',
-                    personFields: 'birthdays',
+                    personFields: 'birthdays,phoneNumbers',
                 });
 
                 const birthDates = peopleResponse.data.birthdays || [];
                 const birthDate = birthDates[0]?.date || null;
+
+                const phoneNumbers = peopleResponse.data.phoneNumbers || [];
+                const phoneNumber = phoneNumbers[0]?.canonicalForm || null;
 
                 const user = await prisma.user.upsert({
                     where: { email },
@@ -45,10 +48,12 @@ passport.use(
                                   ),
                               )
                             : null,
+                        phoneNumber,
                     },
                     create: {
                         googleId: id,
                         email,
+                        phoneNumber,
                         firstName: name.givenName,
                         lastName: name.familyName || null,
                         isVerified: true,
