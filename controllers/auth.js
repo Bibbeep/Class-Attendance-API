@@ -249,4 +249,19 @@ module.exports = {
             next(err);
         }
     },
+    loginGoogle: async (req, res, next) => {
+        try {
+            const data = await AuthModel.loginGoogle(req.user);
+
+            return res.status(200).json({
+                status: 'success',
+                status_code: 200,
+                data,
+                message: 'Successfully logged in with Google',
+                errors: null,
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
 };

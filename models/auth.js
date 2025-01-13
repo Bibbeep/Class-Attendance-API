@@ -216,7 +216,7 @@ class Auth {
      * @param {object} data - Containing user's email and password
      * @param {string} data.email - User's email
      * @param {string} data.password - User's password
-     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role:  string }, accessToken: string }>} The data of the user being verified and JWT access token
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role:  string }, access_token: string }>} The data of the user being verified and JWT access token
      * @throws {HttpRequestError} Will throw an error with 400 status_code if email is not verified or 401 status_code if email is not registered or incorrect password
      */
     static async login(data) {
@@ -285,7 +285,7 @@ class Auth {
             role: user.role,
         };
 
-        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+        const access_token = jwt.sign(payload, process.env.JWT_SECRET, {
             expiresIn: '1d',
         });
 
@@ -297,7 +297,7 @@ class Auth {
                 last_name: user.lastName || null,
                 role: user.role,
             },
-            accessToken,
+            access_token,
         };
     }
 
@@ -392,6 +392,37 @@ class Auth {
         });
 
         return { user: { email: user.email } };
+    }
+
+    /**
+     * Method that encapsulate user data and generate JWT
+     * @param {object} data - Containing all user data
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role:  string }, access_token: string }>} The data of the user being verified and JWT access token
+     */
+    static async loginGoogle(data) {
+        const { id, email, firstName, lastName = null, role } = data;
+
+        const payload = {
+            id,
+            first_name: firstName,
+            last_name: lastName || null,
+            role,
+        };
+
+        const access_token = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '1d',
+        });
+
+        return {
+            user: {
+                id,
+                email,
+                first_name: firstName,
+                last_name: lastName,
+                role,
+            },
+            access_token,
+        };
     }
 }
 

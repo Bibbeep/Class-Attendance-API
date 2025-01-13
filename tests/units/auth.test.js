@@ -6,6 +6,7 @@ const {
     login,
     createPasswordResetToken,
     resetPassword,
+    loginGoogle,
 } = require('../../models/auth');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
@@ -346,9 +347,9 @@ describe('Authentication Unit Tests', () => {
                 role: 'STUDENT',
             });
 
-            expect(returnData).toHaveProperty('accessToken');
-            expect(typeof returnData.accessToken).toBe('string');
-            expect(isNaN(returnData.accessToken)).toBe(true);
+            expect(returnData).toHaveProperty('access_token');
+            expect(typeof returnData.access_token).toBe('string');
+            expect(isNaN(returnData.access_token)).toBe(true);
         });
 
         it('should throw an error if email is not verified', async () => {
@@ -502,6 +503,47 @@ describe('Authentication Unit Tests', () => {
                     },
                 ]),
             );
+        });
+    });
+
+    describe('loginGoogle Tests', () => {
+        it('should return user data and access token', async () => {
+            const data = {
+                id: 1,
+                email: 'test1@mail.com',
+                firstName: 'Jenny',
+                role: 'STUDENT',
+            };
+
+            const returnData = await loginGoogle(data);
+
+            expect(returnData).toHaveProperty('user');
+            expect(returnData.user).toHaveProperty('id');
+            expect(returnData.user).toHaveProperty('email');
+            expect(returnData.user).toHaveProperty('first_name');
+            expect(returnData.user).toHaveProperty('last_name');
+            expect(returnData.user).toHaveProperty('role');
+
+            expect(typeof returnData.user.id).toBe('number');
+            expect(typeof returnData.user.email).toBe('string');
+            expect(typeof returnData.user.first_name).toBe('string');
+            expect(typeof returnData.user.role).toBe('string');
+
+            if (returnData.user.last_name) {
+                expect(typeof returnData.user.last_name).toBe('string');
+            }
+
+            expect(returnData.user).toMatchObject({
+                id: data.id,
+                email: data.email,
+                first_name: data.firstName,
+                last_name: null,
+                role: data.role,
+            });
+
+            expect(returnData).toHaveProperty('access_token');
+            expect(typeof returnData.access_token).toBe('string');
+            expect(isNaN(returnData.access_token)).toBe(true);
         });
     });
 });

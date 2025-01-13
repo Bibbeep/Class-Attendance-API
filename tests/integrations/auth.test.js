@@ -483,7 +483,7 @@ describe('Authentication Integration Tests', () => {
                         last_name: null,
                         role: 'STUDENT',
                     },
-                    accessToken: response.body.data.accessToken,
+                    access_token: response.body.data.access_token,
                 },
                 message: 'Successfully logged in',
                 errors: null,
@@ -805,7 +805,7 @@ describe('Authentication Integration Tests', () => {
                 .post('/api/logout')
                 .set(
                     'Authorization',
-                    `Bearer ${loginData.body.data.accessToken}`,
+                    `Bearer ${loginData.body.data.access_token}`,
                 );
 
             expect(response.status).toBe(200);
@@ -819,10 +819,10 @@ describe('Authentication Integration Tests', () => {
         });
 
         it('should fail to logged out a user and return 400 if invalid Authorization headers', async () => {
-            const accessToken = 'invalidToken123';
+            const access_token = 'invalidToken123';
             const response = await request(server)
                 .post('/api/logout')
-                .set('Authorization', accessToken);
+                .set('Authorization', access_token);
 
             expect(response.status).toBe(400);
             expect(response.body).toMatchObject({
@@ -832,10 +832,10 @@ describe('Authentication Integration Tests', () => {
                 message: 'Request body validation error',
                 errors: [
                     {
-                        message: `"authorization" with value "${accessToken}" fails to match the required pattern: /^Bearer\\s/`,
+                        message: `"authorization" with value "${access_token}" fails to match the required pattern: /^Bearer\\s/`,
                         context: {
                             key: 'authorization',
-                            value: accessToken,
+                            value: access_token,
                         },
                     },
                 ],
@@ -843,10 +843,10 @@ describe('Authentication Integration Tests', () => {
         });
 
         it('should fail to logged out a user and return 401 if invalid Bearer token', async () => {
-            const accessToken = 'invalidToken123';
+            const access_token = 'invalidToken123';
             const response = await request(server)
                 .post('/api/logout')
-                .set('Authorization', `Bearer ${accessToken}`);
+                .set('Authorization', `Bearer ${access_token}`);
 
             expect(response.status).toBe(401);
             expect(response.body).toMatchObject({
@@ -859,11 +859,21 @@ describe('Authentication Integration Tests', () => {
                         message: 'Invalid or expired token',
                         context: {
                             key: 'request.headers.authorization',
-                            value: 'Bearer ' + '*'.repeat(accessToken.length),
+                            value: 'Bearer ' + '*'.repeat(access_token.length),
                         },
                     },
                 ],
             });
+        });
+    });
+
+    describe('GET /api/login/oauth/google Tests', () => {
+        it('should successfully redirect user to login with Google and return 302', async () => {
+            const response = await request(server).get(
+                '/api/login/oauth/google',
+            );
+
+            expect(response.status).toBe(302);
         });
     });
 });
