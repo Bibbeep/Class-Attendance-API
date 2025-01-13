@@ -46,6 +46,10 @@ const bearerJwtSchema = Joi.object({
         .required(),
 }).unknown(true);
 
+const idSchema = Joi.object({
+    id: Joi.string().pattern(/^\d+$/).required(),
+});
+
 module.exports = {
     validateRegister: validator(registerSchema),
     validateVerifyOTP: validator(verifyOTPSchema),
@@ -54,4 +58,5 @@ module.exports = {
     validateForgotPassword: validator(forgotPasswordSchema),
     validateResetPassword: validator(resetPasswordSchema),
     validateAuthorizationHeader: validator(bearerJwtSchema),
+    validateId: validator(idSchema),
 };
