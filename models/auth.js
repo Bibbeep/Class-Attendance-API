@@ -393,6 +393,37 @@ class Auth {
 
         return { user: { email: user.email } };
     }
+
+    /**
+     * Method that encapsulate user data and generate JWT
+     * @param {object} data - Containing all user data
+     * @returns {Promise<{ user: { id: number, email: string, first_name: string, last_name: string | null, role:  string }, accessToken: string }>} The data of the user being verified and JWT access token
+     */
+    static async loginGoogle(data) {
+        const { id, email, firstName, lastName = null, role } = data;
+
+        const payload = {
+            id,
+            first_name: firstName,
+            last_name: lastName || null,
+            role,
+        };
+
+        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '1d',
+        });
+
+        return {
+            user: {
+                id,
+                email,
+                first_name: firstName,
+                last_name: lastName,
+                role,
+            },
+            accessToken,
+        };
+    }
 }
 
 module.exports = Auth;
