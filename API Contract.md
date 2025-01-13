@@ -165,7 +165,7 @@
             "last_name": "1",
             "role": "STUDENT"
         },
-        "accessToken": "{{vault:json-web-token}}"
+        "access_token": "{{vault:json-web-token}}"
     },
     "message": "Successfully logged in",
     "errors": null
@@ -198,7 +198,7 @@
             "last_name": "User",
             "role": "STUDENT"
 		},
-		"accessToken": "{{vault:json-web-token}}"
+		"access_token": "{{vault:json-web-token}}"
 	},
 	"message": "Successfully logged in with Google",
 	"errors": null

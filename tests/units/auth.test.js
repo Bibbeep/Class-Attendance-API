@@ -346,9 +346,9 @@ describe('Authentication Unit Tests', () => {
                 role: 'STUDENT',
             });
 
-            expect(returnData).toHaveProperty('accessToken');
-            expect(typeof returnData.accessToken).toBe('string');
-            expect(isNaN(returnData.accessToken)).toBe(true);
+            expect(returnData).toHaveProperty('access_token');
+            expect(typeof returnData.access_token).toBe('string');
+            expect(isNaN(returnData.access_token)).toBe(true);
         });
 
         it('should throw an error if email is not verified', async () => {
