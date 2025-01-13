@@ -18,10 +18,8 @@ module.exports = {
                 await redisClient.connect();
             }
 
-            console.log(token);
             const blacklisted = await redisClient.get(`blacklist_${token}`);
 
-            console.log(blacklisted);
             if (blacklisted !== null) {
                 throw new HttpRequestError(401, 'Unauthorized', [
                     {
