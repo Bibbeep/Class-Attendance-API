@@ -17,6 +17,7 @@ router.get(
             'profile',
             'email',
             'https://www.googleapis.com/auth/user.birthday.read',
+            'https://www.googleapis.com/auth/user.phonenumbers.read',
         ],
     }),
 );
