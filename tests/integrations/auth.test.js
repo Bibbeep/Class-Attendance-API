@@ -866,4 +866,14 @@ describe('Authentication Integration Tests', () => {
             });
         });
     });
+
+    describe('GET /api/login/oauth/google Tests', () => {
+        it('should successfully redirect user to login with Google and return 302', async () => {
+            const response = await request(server).get(
+                '/api/login/oauth/google',
+            );
+
+            expect(response.status).toBe(302);
+        });
+    });
 });
