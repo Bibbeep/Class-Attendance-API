@@ -19,7 +19,8 @@
     "test:unit:user": "NODE_ENV=test jest ./tests/units/user.test.js --detectOpenHandles --coverage",
     "test:integration:auth": "NODE_ENV=test jest ./tests/integrations/auth.test.js --detectOpenHandles --coverage",
     "test:integration:user": "NODE_ENV=test jest ./tests/integrations/user.test.js --detectOpenHandles --coverage",
-    "test:all": "NODE_ENV=test jest --detectOpenHandles --coverage"
+    "test": "NODE_ENV=test jest --detectOpenHandles --silent --coverage",
+    "prepare": "husky"
   },
   "keywords": [
     "api",
@@ -54,6 +55,7 @@
     "eslint-plugin-jsdoc": "^50.6.1",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.14.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2",
