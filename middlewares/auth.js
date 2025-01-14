@@ -23,7 +23,7 @@ module.exports = {
             if (blacklisted !== null) {
                 throw new HttpRequestError(401, 'Unauthorized', [
                     {
-                        message: 'Expired token',
+                        message: 'Invalid or expired token',
                         context: {
                             key: 'request.headers.authorization',
                             value: 'Bearer ' + '*'.repeat(token.length),

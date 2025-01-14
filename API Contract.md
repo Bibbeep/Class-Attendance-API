@@ -547,7 +547,7 @@ Headers: Authorization (Bearer token)
 `PATCH /api/users/1`
 ```json
 {
-    "phone_number": "0800080000"
+    "phone_number": "+62811080000"
 }
 ```
 
@@ -564,7 +564,7 @@ Headers: Authorization (Bearer token)
         "user": {
             "id": 1,
             "email": "student1@mail.com",
-            "phone_number": "0800080000",
+            "phone_number": "+62811080000",
             "first_name": "Student",
             "last_name": "1",
             "birth_date": "2000-01-01",

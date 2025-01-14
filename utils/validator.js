@@ -50,6 +50,22 @@ const idSchema = Joi.object({
     id: Joi.string().pattern(/^\d+$/).required(),
 });
 
+const editUserSchema = Joi.object({
+    email: Joi.string().email().optional(),
+    phone_number: Joi.string()
+        .pattern(/^\+62[8]\d{7,12}$/)
+        .min(12)
+        .max(17)
+        .optional(),
+    password: Joi.string().min(8).max(30).optional(),
+    first_name: Joi.string().optional(),
+    last_name: Joi.string().optional(),
+    birth_date: Joi.date()
+        .iso()
+        .less(new Date(Date.now()) - 2 * 365 * 24 * 60 * 60 * 1000)
+        .optional(),
+});
+
 module.exports = {
     validateRegister: validator(registerSchema),
     validateVerifyOTP: validator(verifyOTPSchema),
@@ -59,4 +75,5 @@ module.exports = {
     validateResetPassword: validator(resetPasswordSchema),
     validateAuthorizationHeader: validator(bearerJwtSchema),
     validateId: validator(idSchema),
+    validateEditUserData: validator(editUserSchema),
 };

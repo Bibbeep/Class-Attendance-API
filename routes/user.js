@@ -9,5 +9,11 @@ router.get(
     authorizeUserIdParam,
     UserController.getUserById,
 );
+router.patch(
+    '/users/:userId',
+    verifyToken,
+    authorizeUserIdParam,
+    UserController.editById,
+);
 
 module.exports = router;
