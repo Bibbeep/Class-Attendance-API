@@ -15,5 +15,11 @@ router.patch(
     authorizeUserIdParam,
     UserController.editById,
 );
+router.delete(
+    '/users/:userId',
+    verifyToken,
+    authorizeUserIdParam,
+    UserController.deleteById,
+);
 
 module.exports = router;

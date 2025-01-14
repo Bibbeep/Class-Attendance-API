@@ -41,4 +41,19 @@ module.exports = {
             next(err);
         }
     },
+    deleteById: async (req, res, next) => {
+        try {
+            await UserModel.deleteById(req.params);
+
+            return res.status(200).json({
+                status: 'success',
+                status_code: 200,
+                data: null,
+                message: 'Successfully deleted user data',
+                errors: null,
+            });
+        } catch (err) {
+            next(err);
+        }
+    },
 };

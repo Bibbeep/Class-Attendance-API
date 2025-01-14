@@ -133,6 +133,30 @@ class User {
             },
         };
     }
+
+    static async deleteById(data) {
+        const { userId } = data;
+
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(userId) },
+        });
+
+        if (!user) {
+            throw new HttpRequestError(404, 'Resource not found', [
+                {
+                    message: 'User does not exist',
+                    context: {
+                        key: 'request.params.user_id',
+                        value: parseInt(userId),
+                    },
+                },
+            ]);
+        }
+
+        await prisma.user.delete({
+            where: { id: user.id },
+        });
+    }
 }
 
 module.exports = User;
