@@ -602,4 +602,114 @@ describe('User Integration Tests', () => {
             });
         });
     });
+
+    describe('DELETE /api/users/:user_id Tests', () => {
+        it('should successfully deleted user data and return 200', async () => {
+            const response = await request(server)
+                .delete('/api/users/1')
+                .set('Authorization', `Bearer ${studentAccessToken}`);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toMatchObject({
+                status: 'success',
+                status_code: 200,
+                data: null,
+                message: 'Successfully deleted user data',
+                errors: null,
+            });
+        });
+
+        it('should fail to delete user data and return 400 if invalid user_id', async () => {
+            const response = await request(server)
+                .delete('/api/users/abc')
+                .set('Authorization', `Bearer ${studentAccessToken}`);
+
+            expect(response.status).toBe(400);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                status_code: 400,
+                data: null,
+                message: 'Request body validation error',
+                errors: [
+                    {
+                        message:
+                            '"id" with value "abc" fails to match the required pattern: /^\\d+$/',
+                        context: {
+                            key: 'id',
+                            value: 'abc',
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to delete user data and return 401 if invalid or expired access token', async () => {
+            const response = await request(server)
+                .delete('/api/users/1')
+                .set('Authorization', `Bearer invalidToken`);
+
+            expect(response.status).toBe(401);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                status_code: 401,
+                data: null,
+                message: 'Unauthorized',
+                errors: [
+                    {
+                        message: 'Invalid or expired token',
+                        context: {
+                            key: 'request.headers.authorization',
+                            value: `Bearer ${'*'.repeat('invalidToken'.length)}`,
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to delete user data and return 403 if trying to delete other user data', async () => {
+            const response = await request(server)
+                .delete('/api/users/2')
+                .set('Authorization', `Bearer ${studentAccessToken}`);
+
+            expect(response.status).toBe(403);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                status_code: 403,
+                data: null,
+                message: 'Restricted',
+                errors: [
+                    {
+                        message: 'Access to that resource is forbidden',
+                        context: {
+                            key: 'request.params.user_id',
+                            value: '2',
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('should fail to delete user data and return 404 if user is not found', async () => {
+            const response = await request(server)
+                .delete('/api/users/404')
+                .set('Authorization', `Bearer ${adminAccessToken}`);
+
+            expect(response.status).toBe(404);
+            expect(response.body).toMatchObject({
+                status: 'fail',
+                status_code: 404,
+                data: null,
+                message: 'Resource not found',
+                errors: [
+                    {
+                        message: 'User does not exist',
+                        context: {
+                            key: 'request.params.user_id',
+                            value: 404,
+                        },
+                    },
+                ],
+            });
+        });
+    });
 });
