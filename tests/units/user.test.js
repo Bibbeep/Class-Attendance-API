@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const { findById, patchById } = require('../../models/user');
+const { findById, patchById, deleteById } = require('../../models/user');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 const speakeasy = require('speakeasy');
@@ -244,6 +244,35 @@ describe('User Unit Tests', () => {
                         context: {
                             key: 'request.params.user_id',
                             value: data.id,
+                        },
+                    },
+                ]),
+            );
+        });
+    });
+
+    describe('deleteById Tests', () => {
+        it('should delete user data', async () => {
+            const data = { userId: '1' };
+            await deleteById(data);
+
+            const user = await prisma.user.findUnique({
+                where: { id: parseInt(data.userId) },
+            });
+
+            expect(user).toBe(null);
+        });
+
+        it('should throw an error if user does not exist', async () => {
+            const data = { userId: '404' };
+
+            await expect(deleteById(data)).rejects.toThrow(
+                new HttpRequestError(404, 'Resource not found', [
+                    {
+                        message: 'User does not exist',
+                        context: {
+                            key: 'request.params.user_id',
+                            value: parseInt(data.userId),
                         },
                     },
                 ]),
