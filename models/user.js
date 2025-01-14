@@ -50,6 +50,22 @@ class User {
             birth_date: birthDate,
         } = value;
 
+        const isUserExist = await prisma.user.findUnique({
+            where: { id: parseInt(id) },
+        });
+
+        if (!isUserExist) {
+            throw new HttpRequestError(404, 'Resource not found', [
+                {
+                    message: 'User does not exist',
+                    context: {
+                        key: 'request.params.user_id',
+                        value: id,
+                    },
+                },
+            ]);
+        }
+
         const sameEmail = email
             ? await prisma.user.findUnique({
                   where: { email },
@@ -81,22 +97,6 @@ class User {
                     context: {
                         key: 'phone_number',
                         value: phoneNumber,
-                    },
-                },
-            ]);
-        }
-
-        const isUserExist = await prisma.user.findUnique({
-            where: { id: parseInt(id) },
-        });
-
-        if (!isUserExist) {
-            throw new HttpRequestError(404, 'Resource not found', [
-                {
-                    message: 'User does not exist',
-                    context: {
-                        key: 'request.params.user_id',
-                        value: id,
                     },
                 },
             ]);
