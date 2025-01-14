@@ -65,10 +65,10 @@ Class Attendance API is a project built to manage student attendance. The projec
 | `POST` | `/api/logout` | Logs out a user | TRUE |
 | `POST` | `/api/forgot-password` | Sends an email with a url to reset password | FALSE |
 | `POST` | `/api/reset-password` | Resets a password of a user | TRUE |
-| `GET` | `/api/my-classes` | Retrieves all enrolled classes | TRUE |
-| `GET` | `/api/my-classes/:my_class_id` | Retrieves an enrolled class details | TRUE |
-| `POST` | `/api/my-classes` | Enroll to a class | TRUE |
-| `DELETE` | `/api/my-classes/:my_class_id` | Un-enroll to a class | TRUE |
+| `GET` | `/api/classes` | Retrieves all enrolled classes | TRUE |
+| `GET` | `/api/classes/:class_id` | Retrieves an enrolled class details | TRUE |
+| `POST` | `/api/classes` | Enroll to a class | TRUE |
+| `DELETE` | `/api/classes/:class_id` | Un-enroll to a class | TRUE |
 | `GET` | `/api/classes/:class_id/attendances` | Retrieves attendance history to for a class | TRUE |
 | `GET` | `/api/classes/:class_id/attendances/:attendance_id` | Retrieves an attendance details to for a class | TRUE |
 | `POST` | `/api/classes/:class_id/attendances` | Submits an attendance/sick leave to a class | TRUE |
