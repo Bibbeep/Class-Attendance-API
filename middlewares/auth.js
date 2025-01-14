@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken');
+const { client: redisClient } = require('../configs/redis');
 const HttpRequestError = require('../utils/error');
 const { validateAuthorizationHeader } = require('../utils/validator');
 
 module.exports = {
-    verifyToken: (req, res, next) => {
+    verifyToken: async (req, res, next) => {
         try {
             const { error, value } = validateAuthorizationHeader(req.headers);
 
@@ -12,6 +13,25 @@ module.exports = {
             }
 
             const token = value.authorization.split(' ')[1];
+
+            if (!redisClient.isOpen) {
+                await redisClient.connect();
+            }
+
+            const blacklisted = await redisClient.get(`blacklist_${token}`);
+
+            if (blacklisted !== null) {
+                throw new HttpRequestError(401, 'Unauthorized', [
+                    {
+                        message: 'Invalid or expired token',
+                        context: {
+                            key: 'request.headers.authorization',
+                            value: 'Bearer ' + '*'.repeat(token.length),
+                        },
+                    },
+                ]);
+            }
+
             jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
                 if (err) {
                     throw new HttpRequestError(401, 'Unauthorized', [

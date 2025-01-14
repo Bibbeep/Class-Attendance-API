@@ -23,9 +23,9 @@ module.exports = (err, req, res, next) => {
                 : [],
         });
     } else if (err instanceof HttpRequestError) {
-        return res.status(err.status_code).json({
+        return res.status(err.statusCode).json({
             status: 'fail',
-            status_code: err.status_code,
+            status_code: err.statusCode,
             data: null,
             message: err.message,
             errors: err.details.length

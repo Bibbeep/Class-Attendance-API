@@ -13,10 +13,10 @@
 | `POST` | `/api/logout` | Logs out a user | TRUE |
 | `POST` | `/api/forgot-password` | Sends an email with a url to reset password | FALSE |
 | `POST` | `/api/reset-password` | Resets a password of a user | FALSE |
-| `GET` | `/api/my-classes` | Retrieves all enrolled classes | TRUE |
-| `GET` | `/api/my-classes/:my_class_id` | Retrieves an enrolled class details | TRUE |
-| `POST` | `/api/my-classes` | Enroll to a class | TRUE |
-| `DELETE` | `/api/my-classes/:my_class_id` | Un-enroll to a class | TRUE |
+| `GET` | `/api/classes` | Retrieves all enrolled classes | TRUE |
+| `GET` | `/api/classes/:class_id` | Retrieves an enrolled class details | TRUE |
+| `POST` | `/api/classes` | Enroll to a class | TRUE |
+| `DELETE` | `/api/classes/:class_id` | Un-enroll to a class | TRUE |
 | `GET` | `/api/classes/:class_id/attendances` | Retrieves attendance history to for a class | TRUE |
 | `GET` | `/api/classes/:class_id/attendances/:attendance_id` | Retrieves an attendance details to for a class | TRUE |
 | `POST` | `/api/classes/:class_id/attendances` | Submits an attendance/sick leave to a class | TRUE |
@@ -301,12 +301,12 @@ Headers: Authorization (Bearer token)
 </details>
 
 
-## GET /api/my-classes
+## GET /api/classes
 
 <details>
 <summary>Request example</summary>
 
-`GET /api/my-classes?user_id=100&page=2&count=10`
+`GET /api/classes?user_id=100&page=2&count=10`
 
 </details>
 
@@ -318,7 +318,7 @@ Headers: Authorization (Bearer token)
     "status": "success",
     "status_code": 200,
     "data": {
-        "my-classes": [
+        "classes": [
             {
                 "id": 1,
                 "is_active": true,
@@ -359,8 +359,8 @@ Headers: Authorization (Bearer token)
             "pagination": {
                 "current_page": 2,
                 "links": {
-                    "next": "/api/my-classes?user_id=100&page=3&count=10",
-                    "previous": "/api/my-classes?user_id=100&page=1&count=10"
+                    "next": "/api/classes?user_id=100&page=3&count=10",
+                    "previous": "/api/classes?user_id=100&page=1&count=10"
                 },
                 "per_page": 10,
                 "total": 31,
@@ -375,12 +375,12 @@ Headers: Authorization (Bearer token)
 
 </details>
 
-## GET /api/my-classes/:my_class_id
+## GET /api/classes/:class_id
 
 <details>
 <summary>Request example</summary>
 
-`GET /api/myclasses/1`
+`GET /api/classes/1`
 
 </details>
 
@@ -439,12 +439,12 @@ Headers: Authorization (Bearer token)
 
 </details>
 
-## POST /api/my_classes
+## POST /api/classes
 
 <details>
 <summary>Request example</summary>
 
-`POST /api/my_classes`
+`POST /api/classes`
 ```json
 {
     "token_type": "single",
@@ -478,12 +478,12 @@ Headers: Authorization (Bearer token)
 
 </details>
 
-## DELETE /api/my_classes/:my_class_id
+## DELETE /api/classes/:class_id
 
 <details>
 <summary>Request example</summary>
 
-`DELETE /api/my_classes/1`
+`DELETE /api/classes/1`
 
 </details>
 
@@ -547,7 +547,7 @@ Headers: Authorization (Bearer token)
 `PATCH /api/users/1`
 ```json
 {
-    "phone_number": "0800080000"
+    "phone_number": "+62811080000"
 }
 ```
 
@@ -564,7 +564,7 @@ Headers: Authorization (Bearer token)
         "user": {
             "id": 1,
             "email": "student1@mail.com",
-            "phone_number": "0800080000",
+            "phone_number": "+62811080000",
             "first_name": "Student",
             "last_name": "1",
             "birth_date": "2000-01-01",
